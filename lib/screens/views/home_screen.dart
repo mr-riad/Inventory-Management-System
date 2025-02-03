@@ -12,7 +12,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("HomeScreen",style: TextStyle(color: AppColors.primaryColor),),
+      body: Column(
+        children: [
+          Text("HomeScreen",style: TextStyle(color: AppColors.primaryColor),),
+          Text("HomeScreen",style: TextStyle(color: AppColors.secondaryColor),),
+          Text("HomeScreen",style: TextStyle(color: AppColors.backgroundColor),),
+          Text("HomeScreen",style: TextStyle(color: AppColors.textColor),),
+          Text("HomeScreen",style: TextStyle(color: AppColors.buttonColor),),
+          Text("HomeScreen",style: TextStyle(color: AppColors.buttonTextColor),),
+        ],
+      ),
     );
   }
 }
