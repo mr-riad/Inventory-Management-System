@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invetory_management1/services/auth_service.dart';
+import 'package:invetory_management1/utils/text_field.dart';
 import 'package:provider/provider.dart';
 
 class RegistrationPage extends StatelessWidget {
@@ -11,24 +12,18 @@ class RegistrationPage extends StatelessWidget {
     final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
+            Text("Please",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold),),
+            Text("Login your account",style: TextStyle(fontSize: 20,),),
+            SizedBox(height: 60,),
+            CustomTextField(hintText: 'Email', controller: _emailController,),
             SizedBox(height: 20),
+            CustomTextField(hintText: 'Passwords', controller: _passwordController),
+            SizedBox(height: 25),
             ElevatedButton(
               onPressed: () async {
                 final user = await authService.register(

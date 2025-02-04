@@ -9,7 +9,8 @@ class AppColors {
   // Background & Surface
   static const Color background = Color(0xFFF8F9FA); // Light Gray - App Background
   static const Color surface = Color(0xFFFFFFFF); // White - Cards, Modals, Forms
-  static const Color divider = Color(0xFFCED4DA); // Light Gray - Dividers & Borders
+  static const Color divider = Color(0xFFCED4DA);
+  // Light Gray - Dividers & Borders
 
   // Text Colors
   static const Color textPrimary = Color(0xFF212529); // Dark Gray - Primary Text

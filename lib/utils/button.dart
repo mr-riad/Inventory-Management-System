@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:invetory_management1/utils/colors.dart';
-
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
@@ -11,8 +10,8 @@ class CustomButton extends StatelessWidget {
     Key? key,
     required this.text,
     required this.onPressed,
-    this.backgroundColor = AppColors.background,
-    this.textColor = AppColors.textPrimary,
+    required this.backgroundColor,
+    required this.textColor,
   }) : super(key: key);
 
   @override
@@ -23,15 +22,15 @@ class CustomButton extends StatelessWidget {
         backgroundColor: backgroundColor,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         textStyle: TextStyle(
-          fontSize: 18,
+          fontSize: 22,
           fontWeight: FontWeight.bold,
           color: textColor,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
-      child: Text(text),
+      child: Text(text,style: TextStyle(color: AppColors.textOnPrimary),),
     );
   }
 }
