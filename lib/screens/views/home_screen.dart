@@ -14,12 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Column(
         children: [
-          Text("HomeScreen",style: TextStyle(color: AppColors.primaryColor),),
-          Text("HomeScreen",style: TextStyle(color: AppColors.secondaryColor),),
-          Text("HomeScreen",style: TextStyle(color: AppColors.backgroundColor),),
-          Text("HomeScreen",style: TextStyle(color: AppColors.textColor),),
-          Text("HomeScreen",style: TextStyle(color: AppColors.buttonColor),),
-          Text("HomeScreen",style: TextStyle(color: AppColors.buttonTextColor),),
+          Text("HomeScreen",style: TextStyle(color: AppColors.primary),),
         ],
       ),
     );
