@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:invetory_management1/utils/colors.dart';
+import 'package:invetory_management1/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Scaffold(
-      body: Column(
-        children: [
-          Text("HomeScreen",style: TextStyle(color: AppColors.primary),),
+      appBar: AppBar(
+        title: Text('Home'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              await authService.logout();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          ),
         ],
+      ),
+      body: Center(
+        child: Text('Welcome to the Home Page!'),
       ),
     );
   }
