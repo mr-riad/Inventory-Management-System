@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:invetory_management1/providers/account_payable_provider.dart';
+import 'package:invetory_management1/providers/customers_provider.dart';
+import 'package:invetory_management1/providers/product_provider.dart';
+import 'package:invetory_management1/providers/sale_provider.dart';
 import 'package:invetory_management1/screens/auth/login_screen.dart';
 import 'package:invetory_management1/screens/auth/register_screen.dart';
 import 'package:invetory_management1/screens/views/home_screen.dart';
@@ -21,6 +25,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
+        ChangeNotifierProvider(create: (_) => SaleProvider()),
+        ChangeNotifierProvider(create: (_) => AccountPayableProvider()),
         Provider<AuthService>(
           create: (_) => AuthService(),
         ),
@@ -36,6 +44,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => LoginPage(),
           '/register': (context) => RegistrationPage(),
           '/home': (context) => HomePage(),
+
         },
       ),
     );

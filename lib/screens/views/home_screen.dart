@@ -1,27 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:invetory_management1/services/auth_service.dart';
-import 'package:provider/provider.dart';
+import 'package:invetory_management1/screens/views/home_services/account_payable.dart';
+import 'package:invetory_management1/screens/views/home_services/customers_page.dart';
+import 'package:invetory_management1/screens/views/home_services/product_page.dart';
+import 'package:invetory_management1/screens/views/home_services/sales_page.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              await authService.logout();
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          ),
-        ],
+        title: Text('Inventory Management'),
       ),
       body: Center(
-        child: Text('Welcome to the Home Page!'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductsPage()));
+              },
+              child: Text('Manage Products'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CustomersPage()));
+              },
+              child: Text('Manage Customers'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => SalesPage()));
+              },
+              child: Text('Manage Sales'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AccountPayablePage()));
+              },
+              child: Text('Manage Account Payables'),
+            ),
+          ],
+        ),
       ),
     );
   }
