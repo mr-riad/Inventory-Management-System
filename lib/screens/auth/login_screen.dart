@@ -39,7 +39,14 @@ class LoginPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             CustomTextField(
-                hintText: 'Passwords', controller: _passwordController),
+                hintText: 'Passwords', controller: _passwordController,
+              obscureText: true,
+              suffixIcon: Icons.remove_red_eye_sharp,
+              onSuffixIconTap: () {
+                print("Suffix icon tapped!");
+              },
+
+            ),
             SizedBox(height: 25),
             Container(
               height: 58,

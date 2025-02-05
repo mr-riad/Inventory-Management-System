@@ -4,11 +4,15 @@ class CustomTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final TextEditingController controller;
+  final IconData? suffixIcon;
+  final VoidCallback? onSuffixIconTap;
 
   CustomTextField({
     required this.hintText,
     this.obscureText = false,
     required this.controller,
+    this.suffixIcon,
+    this.onSuffixIconTap,
   });
 
   @override
@@ -21,6 +25,12 @@ class CustomTextField extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
+        suffixIcon: suffixIcon != null
+            ? GestureDetector(
+          onTap: onSuffixIconTap,
+          child: Icon(suffixIcon),
+        )
+            : null,
       ),
     );
   }
