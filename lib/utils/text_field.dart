@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String hintText;
   final bool obscureText;
   final TextEditingController controller;
@@ -16,19 +16,40 @@ class CustomTextField extends StatelessWidget {
   });
 
   @override
+  _CustomTextFieldState createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  late bool _isObscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _isObscure = widget.obscureText;
+  }
+
+  void _toggleObscure() {
+    setState(() {
+      _isObscure = !_isObscure;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
-      obscureText: obscureText,
+      controller: widget.controller,
+      obscureText: _isObscure,
       decoration: InputDecoration(
-        hintText: hintText,
+        hintText: widget.hintText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        suffixIcon: suffixIcon != null
+        suffixIcon: widget.suffixIcon != null
             ? GestureDetector(
-          onTap: onSuffixIconTap,
-          child: Icon(suffixIcon),
+          onTap: _toggleObscure,
+          child: Icon(
+            _isObscure ? Icons.visibility_off : Icons.visibility,
+          ),
         )
             : null,
       ),

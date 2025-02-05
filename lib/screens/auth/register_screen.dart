@@ -32,21 +32,17 @@ class RegistrationPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             CustomTextField(
-              hintText: 'Password', obscureText: true,
+              hintText: 'Password',
+              obscureText: true,
               controller: _passwordController,
               suffixIcon: Icons.visibility,
-              onSuffixIconTap: () {
-                print("Suffix icon tapped!");
-              },),
+            ),
             SizedBox(height: 20),
             CustomTextField(
               hintText: 'Confirm Password',
               obscureText: true,
               controller: _confirmPasswordController,
               suffixIcon: Icons.visibility,
-              onSuffixIconTap: () {
-                print("Suffix icon tapped!");
-              },
             ),
             SizedBox(height: 25),
             Container(

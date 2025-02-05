@@ -6,8 +6,8 @@ class AuthService {
   Future<User?> register(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password
+        email: email,
+        password: password,
       );
       return userCredential.user;
     } catch (e) {
@@ -19,8 +19,8 @@ class AuthService {
   Future<User?> login(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password
+        email: email,
+        password: password,
       );
       return userCredential.user;
     } catch (e) {
@@ -31,5 +31,14 @@ class AuthService {
 
   Future<void> logout() async {
     await _auth.signOut();
+  }
+
+  // Method to send the password reset email
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      print("Password Reset Error: ${e.toString()}");
+    }
   }
 }

@@ -39,39 +39,41 @@ class LoginPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             CustomTextField(
-                hintText: 'Passwords', controller: _passwordController,
+              hintText: 'Password',
+              controller: _passwordController,
               obscureText: true,
               suffixIcon: Icons.remove_red_eye_sharp,
               onSuffixIconTap: () {
                 print("Suffix icon tapped!");
               },
-
             ),
             SizedBox(height: 25),
             Container(
               height: 58,
               width: double.infinity,
               child: CustomButton(
-                  text: "LogIn",
-                  onPressed: () async {
-                    final user = await authService.login(
-                      _emailController.text,
-                      _passwordController.text,
-                    );
-                    if (user != null) {
-                      Navigator.pushReplacementNamed(context, '/home');
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
+                text: "LogIn",
+                onPressed: () async {
+                  final user = await authService.login(
+                    _emailController.text,
+                    _passwordController.text,
+                  );
+                  if (user != null) {
+                    Navigator.pushReplacementNamed(context, '/home');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
                           'Login failed!',
                           style: TextStyle(color: AppColors.textOnPrimary),
-                        )),
-                      );
-                    }
-                  },
-                  backgroundColor: AppColors.buttonPrimary,
-                  textColor: AppColors.textPrimary),
+                        ),
+                      ),
+                    );
+                  }
+                },
+                backgroundColor: AppColors.buttonPrimary,
+                textColor: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(
               height: 30,
@@ -92,6 +94,31 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            SizedBox(height: 20),
+            // Forgot password section
+            GestureDetector(
+              onTap: () async {
+                String email = _emailController.text;
+                if (email.isNotEmpty) {
+                  await authService.sendPasswordResetEmail(email);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Password reset link sent!')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please enter your email')),
+                  );
+                }
+              },
+              child: Text(
+                "Forgot Password?",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.buttonPrimary,
+                ),
+              ),
             ),
           ],
         ),
