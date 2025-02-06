@@ -4,6 +4,9 @@ import 'package:invetory_management1/screens/views/home_services/customers_page.
 import 'package:invetory_management1/screens/views/home_services/product_page.dart';
 import 'package:invetory_management1/screens/views/home_services/sales_page.dart';
 
+import 'home_services/profit_page.dart';
+import 'home_services/stock_page.dart';
+
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -39,6 +42,16 @@ class HomePage extends StatelessWidget {
               },
               child: Text('Manage Account Payables'),
             ),
+      ElevatedButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => StockPage()));
+        },
+        child: Text('Stock'),),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfitPage()));
+              },
+              child: Text('profit'),),
           ],
         ),
       ),

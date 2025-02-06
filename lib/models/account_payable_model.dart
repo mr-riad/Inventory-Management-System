@@ -11,20 +11,22 @@ class AccountPayable {
     required this.dueDate,
   });
 
+  // Convert Firestore document to AccountPayable object
   factory AccountPayable.fromMap(Map<String, dynamic> data, String id) {
     return AccountPayable(
       id: id,
       supplierName: data['supplierName'],
       amountDue: data['amountDue'],
-      dueDate: DateTime.parse(data['dueDate']),
+      dueDate: data['dueDate'].toDate(), // Convert Firestore Timestamp to DateTime
     );
   }
 
+  // Convert AccountPayable object to Firestore document
   Map<String, dynamic> toMap() {
     return {
       'supplierName': supplierName,
       'amountDue': amountDue,
-      'dueDate': dueDate.toIso8601String(),
+      'dueDate': dueDate, // Firestore will automatically convert DateTime to Timestamp
     };
   }
 }
