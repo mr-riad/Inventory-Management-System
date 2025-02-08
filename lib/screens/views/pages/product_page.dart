@@ -12,40 +12,58 @@ class ProductsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Products'),
+        title: TextField(
+          onChanged: (query) {
+            productProvider.searchProducts(query);
+          },
+          decoration: InputDecoration(
+            hintText: 'Search products...',
+            border: InputBorder.none,
+          ),
+        ),
       ),
-      body: ListView.builder(
-        itemCount: productProvider.products.length,
-        itemBuilder: (context, index) {
-          final product = productProvider.products[index];
-          return ListTile(
-            title: Text(product.name),
-            subtitle: Text('Stock: ${product.stock}, Price: \$${product.price.toStringAsFixed(2)}'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    // Navigate to edit product page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditProductPage(product: product),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: productProvider.filteredProducts.isEmpty
+                  ? productProvider.products.length
+                  : productProvider.filteredProducts.length,
+              itemBuilder: (context, index) {
+                final product = productProvider.filteredProducts.isEmpty
+                    ? productProvider.products[index]
+                    : productProvider.filteredProducts[index];
+                return ListTile(
+                  title: Text(product.name),
+                  subtitle: Text('Stock: ${product.stock}, Price: ${product.buyPrice.toStringAsFixed(2)} \৳'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          // Navigate to edit product page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditProductPage(product: product),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    productProvider.deleteProduct(product.id);
-                  },
-                ),
-              ],
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          productProvider.deleteProduct(product.id);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -106,7 +124,7 @@ class AddProductPage extends StatelessWidget {
               ),
               TextFormField(
                 controller: _priceController,
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: InputDecoration(labelText: 'Buy Price'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -133,7 +151,7 @@ class AddProductPage extends StatelessWidget {
                     final product = Product(
                       name: _nameController.text,
                       description: _descriptionController.text,
-                      price: double.parse(_priceController.text),
+                      buyPrice: double.parse(_priceController.text),
                       stock: int.parse(_stockController.text),
                       createdAt: DateTime.now(),
                     );
@@ -162,7 +180,7 @@ class EditProductPage extends StatelessWidget {
   EditProductPage({required this.product}) {
     _nameController.text = product.name;
     _descriptionController.text = product.description;
-    _priceController.text = product.price.toString();
+    _priceController.text = product.buyPrice.toString();
     _stockController.text = product.stock.toString();
   }
 
@@ -230,7 +248,7 @@ class EditProductPage extends StatelessWidget {
                       id: product.id,
                       name: _nameController.text,
                       description: _descriptionController.text,
-                      price: double.parse(_priceController.text),
+                      buyPrice: double.parse(_priceController.text),
                       stock: int.parse(_stockController.text),
                       createdAt: product.createdAt,
                     );

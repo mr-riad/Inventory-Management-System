@@ -10,12 +10,16 @@ class ProfitPage extends StatelessWidget {
     final saleProvider = Provider.of<SaleProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
 
+    // Calculate total revenue based on the sell price
     double totalRevenue = saleProvider.sales.fold(0, (sum, sale) => sum + sale.totalPrice);
+
+    // Calculate total cost based on the buy price
     double totalCost = saleProvider.sales.fold(0, (sum, sale) {
       final product = productProvider.products.firstWhere((p) => p.id == sale.productId);
-      return sum + (product.price * sale.quantity);
+      return sum + (product.buyPrice * sale.quantity); // Use buyPrice instead of sell price
     });
 
+    // Calculate profit
     double profit = totalRevenue - totalCost;
 
     return Scaffold(

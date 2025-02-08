@@ -2,7 +2,7 @@ class Product {
   String id;
   String name;
   String description;
-  double price;
+  double buyPrice;
   int stock;
   DateTime createdAt;
 
@@ -10,7 +10,7 @@ class Product {
     this.id = '',
     required this.name,
     required this.description,
-    required this.price,
+    required this.buyPrice,
     required this.stock,
     required this.createdAt,
   });
@@ -20,7 +20,7 @@ class Product {
       id: id,
       name: data['name'],
       description: data['description'],
-      price: data['price'],
+      buyPrice: data['buyPrice'],
       stock: data['stock'],
       createdAt: DateTime.parse(data['createdAt']),
     );
@@ -30,7 +30,7 @@ class Product {
     return {
       'name': name,
       'description': description,
-      'price': price,
+      'buyPrice': buyPrice,
       'stock': stock,
       'createdAt': createdAt.toIso8601String(),
     };

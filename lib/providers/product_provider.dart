@@ -5,8 +5,27 @@ import '../models/product_model.dart';
 
 class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
+  String _searchQuery = '';
 
   List<Product> get products => _products;
+
+  // Getter for filtered products based on search query
+  List<Product> get filteredProducts {
+    if (_searchQuery.isEmpty) {
+      return _products;
+    } else {
+      return _products
+          .where((product) =>
+          product.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .toList();
+    }
+  }
+
+  // Method to update the search query
+  void searchProducts(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
 
   Future<void> fetchProducts() async {
     final snapshot = await FirebaseFirestore.instance.collection('products').get();

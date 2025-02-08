@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-
 import '../models/sale_model.dart';
 
 class SaleProvider with ChangeNotifier {
@@ -10,22 +9,38 @@ class SaleProvider with ChangeNotifier {
 
   Future<void> fetchSales() async {
     final snapshot = await FirebaseFirestore.instance.collection('sales').get();
-    _sales = snapshot.docs.map((doc) => Sale.fromMap(doc.data(), doc.id)).toList();
+    _sales = snapshot.docs
+        .map((doc) => Sale.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
     notifyListeners();
   }
 
   Future<void> addSale(Sale sale) async {
     final docRef = await FirebaseFirestore.instance.collection('sales').add(sale.toMap());
-    sale.id = docRef.id;
-    _sales.add(sale);
+    final newSale = Sale(
+      id: docRef.id,
+      productId: sale.productId,
+      customerId: sale.customerId,
+      customerName: sale.customerName,
+      customerEmail: sale.customerEmail,
+      customerPhone: sale.customerPhone,
+      quantity: sale.quantity,
+      sellPrice: sale.sellPrice,
+      totalPrice: sale.totalPrice,
+      saleDate: sale.saleDate,
+    );
+
+    _sales.add(newSale);
     notifyListeners();
   }
 
   Future<void> updateSale(Sale sale) async {
     await FirebaseFirestore.instance.collection('sales').doc(sale.id).update(sale.toMap());
     final index = _sales.indexWhere((s) => s.id == sale.id);
-    _sales[index] = sale;
-    notifyListeners();
+    if (index != -1) {
+      _sales[index] = sale;
+      notifyListeners();
+    }
   }
 
   Future<void> deleteSale(String id) async {
