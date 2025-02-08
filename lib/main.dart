@@ -6,7 +6,7 @@ import 'package:invetory_management1/providers/product_provider.dart';
 import 'package:invetory_management1/providers/sale_provider.dart';
 import 'package:invetory_management1/screens/auth/login_screen.dart';
 import 'package:invetory_management1/screens/auth/register_screen.dart';
-import 'package:invetory_management1/screens/views/home_screen.dart';
+import 'package:invetory_management1/screens/views/home/home_screen.dart';
 import 'package:invetory_management1/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
