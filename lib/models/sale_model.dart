@@ -2,9 +2,9 @@ class Sale {
   final String id;
   final String productId;
   final String customerId;
-  final String customerName; // Added customerName field
-  final String customerEmail; // Added customerEmail field
-  final String customerPhone; // Added customerPhone field
+  final String customerName;
+  final String customerEmail;
+  final String customerPhone;
   final int quantity;
   final double sellPrice;
   final double totalPrice;
@@ -16,26 +16,25 @@ class Sale {
     required this.id,
     required this.productId,
     required this.customerId,
-    required this.customerName, // Added customerName field
-    required this.customerEmail, // Added customerEmail field
-    required this.customerPhone, // Added customerPhone field
+    required this.customerName,
+    required this.customerEmail,
+    required this.customerPhone,
     required this.quantity,
     required this.sellPrice,
     required this.totalPrice,
-    required this.borrowAmount,
     required this.payAmount,
+    required this.borrowAmount,
     required this.saleDate,
   });
 
-  // Factory constructor to create a Sale object from a map
   factory Sale.fromMap(Map<String, dynamic> data, String id) {
     return Sale(
       id: id,
       productId: data['productId'],
       customerId: data['customerId'],
-      customerName: data['customerName'], // Added customerName field
-      customerEmail: data['customerEmail'], // Added customerEmail field
-      customerPhone: data['customerPhone'], // Added customerPhone field
+      customerName: data['customerName'],
+      customerEmail: data['customerEmail'],
+      customerPhone: data['customerPhone'],
       quantity: data['quantity'],
       sellPrice: data['sellPrice'],
       totalPrice: data['totalPrice'],
@@ -45,19 +44,18 @@ class Sale {
     );
   }
 
-  // Method to convert a Sale object to a map
   Map<String, dynamic> toMap() {
     return {
       'productId': productId,
       'customerId': customerId,
-      'customerName': customerName, // Added customerName field
-      'customerEmail': customerEmail, // Added customerEmail field
-      'customerPhone': customerPhone, // Added customerPhone field
+      'customerName': customerName,
+      'customerEmail': customerEmail,
+      'customerPhone': customerPhone,
       'quantity': quantity,
       'sellPrice': sellPrice,
       'totalPrice': totalPrice,
-      'payAmount':payAmount,
-      'borrowAmount':borrowAmount,
+      'payAmount': payAmount,
+      'borrowAmount': borrowAmount,
       'saleDate': saleDate.toIso8601String(),
     };
   }
