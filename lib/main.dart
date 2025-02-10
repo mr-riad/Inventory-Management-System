@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:invetory_management1/providers/customers_provider.dart';
 import 'package:invetory_management1/providers/product_provider.dart';
 import 'package:invetory_management1/providers/sale_provider.dart';
 import 'package:invetory_management1/screens/auth/login_screen.dart';
@@ -25,7 +24,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProductProvider()),
-        ChangeNotifierProvider(create: (_) => CustomerProvider()),
         ChangeNotifierProvider(create: (_) => SaleProvider()),
         Provider<AuthService>(
           create: (_) => AuthService(),

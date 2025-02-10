@@ -34,7 +34,8 @@ class ProductsPage extends StatelessWidget {
                     : productProvider.filteredProducts[index];
                 return ListTile(
                   title: Text(product.name),
-                  subtitle: Text('Stock: ${product.stock}, Price: ${product.buyPrice.toStringAsFixed(2)} \৳'),
+                  subtitle: Text(
+                      'Stock: ${product.stock}, Price: ${product.buyPrice.toStringAsFixed(2)} \৳'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -45,7 +46,8 @@ class ProductsPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => EditProductPage(product: product),
+                              builder: (context) =>
+                                  EditProductPage(product: product),
                             ),
                           );
                         },
