@@ -42,7 +42,7 @@ class _BorrowPageState extends State<BorrowPage> {
                 // Text('Sell Price: \$${sale.sellPrice.toStringAsFixed(2)}'),
                 // Text('Total Price: \$${sale.totalPrice.toStringAsFixed(2)}'),
                 // Text('Pay Amount: \$${sale.payAmount.toStringAsFixed(2)}'),
-                Text('Borrow Amount: \$${sale.borrowAmount.toStringAsFixed(2)}'),
+                Text('Borrow Amount: ${sale.borrowAmount.toStringAsFixed(2)} \৳'),
               ],
             ),
             trailing: IconButton(
