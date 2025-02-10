@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:invetory_management1/utils/colors.dart';
 import '../../auth/login_screen.dart';
-import '../pages/account_payable.dart';
-import '../pages/customers_page.dart';
-import '../pages/product_page.dart';
-import '../pages/profit_page.dart';
-import '../pages/sales_page.dart';
-import '../pages/stock_page.dart';
-import '../pages/total_payable_page.dart';
-import '../pages/total_sell_page.dart';
+import '../borrow/borrow_page.dart';
+import '../customers/customers_page.dart';
+import '../product/product_pge.dart';
+import '../sales/sale_page.dart';
+import '../stcok/stock_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,8 +17,8 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     DashboardScreen(), // The main content of the home page
-    TotalPayablePage(), // Total Payable Amount page
-    TotalSellPage(), // Total Sell page
+    // TotalPayablePage(), // Total Payable Amount page
+    // TotalSellPage(), // Total Sell page
   ];
 
   void _onItemTapped(int index) {
@@ -74,23 +71,23 @@ class DashboardScreen extends StatelessWidget {
     {
       'image': 'images/sales.jpg',
       'name': 'Manage Sales',
-      'page': SalesPage(),
+      'page': SalePage(),
     },
     {
       'image': 'images/payable_amount.jpg',
       'name': 'Manage Account Payables',
-      'page': AccountPayablePage(),
+      'page': BorrowPage(),
     },
     {
       'image': 'images/stock.jpg',
       'name': 'Stock',
       'page': StockPage(),
     },
-    {
-      'image': 'images/profit.png',
-      'name': 'Profit',
-      'page': ProfitPage(),
-    },
+    // {
+    //   'image': 'images/profit.png',
+    //   'name': 'Profit',
+    //   'page': ProfitPage(),
+    // },
   ];
 
   @override

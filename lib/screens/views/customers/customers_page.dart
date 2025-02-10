@@ -19,7 +19,7 @@ class _CustomersPageState extends State<CustomersPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sales'),
+        title: const Text('Customers'),
       ),
       body: ListView.builder(
         itemCount: saleProvider.sales.length,
@@ -30,18 +30,18 @@ class _CustomersPageState extends State<CustomersPage> {
           );
 
           return ListTile(
-            title: Text(product.name),
+            title: Text(sale.customerName,style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Customer: ${sale.customerName}'),
+                //Text('Customer: ${sale.customerName}'),
                 Text('Email: ${sale.customerEmail}'),
                 Text('Phone: ${sale.customerPhone}'),
-                Text('Quantity: ${sale.quantity}'),
-                Text('Sell Price: \$${sale.sellPrice.toStringAsFixed(2)}'),
-                Text('Total Price: \$${sale.totalPrice.toStringAsFixed(2)}'),
-                Text('Pay Amount: \$${sale.payAmount.toStringAsFixed(2)}'),
-                Text('Borrow Amount: \$${sale.borrowAmount.toStringAsFixed(2)}'),
+               // Text('Quantity: ${sale.quantity}'),
+               //  Text('Sell Price: \$${sale.sellPrice.toStringAsFixed(2)}'),
+               //  Text('Total Price: \$${sale.totalPrice.toStringAsFixed(2)}'),
+               //  Text('Pay Amount: \$${sale.payAmount.toStringAsFixed(2)}'),
+               //  Text('Borrow Amount: \$${sale.borrowAmount.toStringAsFixed(2)}'),
               ],
             ),
             trailing: IconButton(
