@@ -1,48 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:invetory_management1/screens/views/product/edit_product_page.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/product_provider.dart';
+import '../../../utils/colors.dart';
 import 'add_product_page.dart';
+import 'edit_product_page.dart';
 
 class ProductsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final productProvider = Provider.of<ProductProvider>(context);
-
     return Scaffold(
+      // backgroundColor: AppColors.buttonDisabled,
       appBar: AppBar(
-        title: TextField(
-          onChanged: (query) {
-            productProvider.searchProducts(query);
-          },
-          decoration: InputDecoration(
-            hintText: 'Search products...',
-            border: InputBorder.none,
+        backgroundColor: AppColors.primary,
+        title: Container(
+          decoration: BoxDecoration(
+            color: AppColors.textOnPrimary,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: TextField(
+            onChanged: (query) {
+              Provider.of<ProductProvider>(context, listen: false)
+                  .searchProducts(query);
+            },
+            decoration: InputDecoration(
+              hintText: 'Search products...',
+              icon: Icon(Icons.search_rounded, color: Colors.grey),
+              border: InputBorder.none,
+            ),
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: productProvider.filteredProducts.isEmpty
-                  ? productProvider.products.length
-                  : productProvider.filteredProducts.length,
-              itemBuilder: (context, index) {
-                final product = productProvider.filteredProducts.isEmpty
-                    ? productProvider.products[index]
-                    : productProvider.filteredProducts[index];
-                return ListTile(
-                  title: Text(product.name),
+      body: Consumer<ProductProvider>(
+        builder: (context, productProvider, child) {
+          final products = productProvider.filteredProducts.isEmpty
+              ? productProvider.products
+              : productProvider.filteredProducts;
+
+          return products.isEmpty
+              ? Center(child: Text("No products available"))
+              : ListView.builder(
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return Container(
+                margin: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: AppColors.textSecondary),
+                ),
+                child: ListTile(
+                  title: Text(product.name,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25),),
                   subtitle: Text(
-                      'Stock: ${product.stock}, Price: ${product.buyPrice.toStringAsFixed(2)} \৳'),
+                      'Price: ${product.buyPrice.toStringAsFixed(2)} ৳, Stock: ${product.stock}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.edit),
+                        icon: Icon(Icons.edit, color: Colors.blue),
                         onPressed: () {
-                          // Navigate to edit product page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -53,22 +69,21 @@ class ProductsPage extends StatelessWidget {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
                           productProvider.deleteProduct(product.id);
                         },
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to add product page
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -77,6 +92,7 @@ class ProductsPage extends StatelessWidget {
           );
         },
         child: Icon(Icons.add),
+        backgroundColor: AppColors.primary,
       ),
     );
   }
