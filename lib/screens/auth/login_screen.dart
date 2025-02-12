@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invetory_management1/providers/auth_provider.dart';
 import 'package:invetory_management1/utils/button.dart';
 import 'package:invetory_management1/utils/colors.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
+    //final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -54,11 +55,12 @@ class LoginPage extends StatelessWidget {
               child: CustomButton(
                 text: "LogIn",
                 onPressed: () async {
-                  final user = await authService.login(
+                  var authProvider=context.read<AuthProvider>();
+                  final user = await authProvider.login(
                     _emailController.text,
                     _passwordController.text,
                   );
-                  if (user != null) {
+                  if (user == true) {
                     Navigator.pushReplacementNamed(context, '/home');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -101,7 +103,7 @@ class LoginPage extends StatelessWidget {
               onTap: () async {
                 String email = _emailController.text;
                 if (email.isNotEmpty) {
-                  await authService.sendPasswordResetEmail(email);
+                  //await authService.sendPasswordResetEmail(email);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Password reset link sent!')),
                   );

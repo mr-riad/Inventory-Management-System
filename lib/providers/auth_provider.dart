@@ -15,6 +15,10 @@ class AuthProvider with ChangeNotifier{ // notify ui components
 
   Future<bool> login (String email, String password) async {
     _user = await _authService.login(email, password);
+    if(_user!=null && !_user!.emailVerified){
+     await logout();
+     return false;
+    }
     notifyListeners();
     return _user != null;
   }

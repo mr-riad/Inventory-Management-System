@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:invetory_management1/main.dart';
 import 'package:invetory_management1/providers/product_provider.dart';
 import 'package:invetory_management1/providers/sale_provider.dart';
 import 'package:invetory_management1/utils/colors.dart';

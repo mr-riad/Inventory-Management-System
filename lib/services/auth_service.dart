@@ -9,6 +9,7 @@ class AuthService {
         email: email,
         password: password,
       );
+     await userCredential.user!.sendEmailVerification();
       return userCredential.user;
     } catch (e) {
       print("Registration Error: ${e.toString()}");
