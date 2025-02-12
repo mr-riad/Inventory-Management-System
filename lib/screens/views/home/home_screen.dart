@@ -1,5 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:invetory_management1/main.dart';
+import 'package:invetory_management1/providers/product_provider.dart';
+import 'package:invetory_management1/providers/sale_provider.dart';
 import 'package:invetory_management1/utils/colors.dart';
+import 'package:provider/provider.dart';
 import '../../auth/login_screen.dart';
 import '../borrow/borrow_page.dart';
 import '../customers/customers_page.dart';
@@ -20,6 +26,19 @@ class _HomePageState extends State<HomePage> {
     // TotalPayablePage(), // Total Payable Amount page
     // TotalSellPage(), // Total Sell page
   ];
+
+  void loadData() async{
+    await context.read<SaleProvider>().fetchSales();
+    await context.read<ProductProvider>().fetchProducts();
+    debugPrint('Data Loadded');
+
+}
+
+  @override
+  void initState() {
+    loadData();
+    super.initState();
+  }
 
   void _onItemTapped(int index) {
     setState(() {

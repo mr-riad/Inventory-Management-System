@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import '../models/sale_model.dart';
@@ -13,6 +15,7 @@ class SaleProvider with ChangeNotifier {
     _sales = snapshot.docs
         .map((doc) => Sale.fromMap(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
+    log(_sales.toString(),name: 'sales');
     notifyListeners();
   }
 
