@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => SaleProvider()),
-       ChangeNotifierProvider<AuthProvider>(
+        ChangeNotifierProvider<AuthProvider>(
           create: (_) => AuthProvider(),
         ),
       ],

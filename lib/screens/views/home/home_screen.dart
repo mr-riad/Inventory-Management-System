@@ -24,14 +24,17 @@ class _HomePageState extends State<HomePage> {
     // TotalSellPage(), // Total Sell page
   ];
 
+  //Data load function
   void loadData() async{
     await context.read<SaleProvider>().fetchSales();
     await context.read<ProductProvider>().fetchProducts();
     debugPrint('Data Loadded');
 
-}
+  }
 
   @override
+
+  //Data Load system
   void initState() {
     loadData();
     super.initState();
