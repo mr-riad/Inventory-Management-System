@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invetory_management1/utils/colors.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/sale_model.dart';
@@ -31,13 +32,15 @@ class _AddSalePageState extends State<AddSalePage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppColors.primary,
         title: const Text('Add Sale'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DropdownButtonFormField<String>(
                 value: _selectedProductId,
@@ -52,7 +55,12 @@ class _AddSalePageState extends State<AddSalePage> {
                     _selectedProductId = value;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Product'),
+                decoration: InputDecoration(
+                  labelText: 'Product',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 hint: const Text('Select a product'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -61,9 +69,15 @@ class _AddSalePageState extends State<AddSalePage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _customerNameController,
-                decoration: const InputDecoration(labelText: 'Customer Name'),
+                decoration: InputDecoration(
+                  labelText: 'Customer Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter customer name';
@@ -71,9 +85,15 @@ class _AddSalePageState extends State<AddSalePage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _customerEmailController,
-                decoration: const InputDecoration(labelText: 'Customer Email'),
+                decoration: InputDecoration(
+                  labelText: 'Customer Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -82,9 +102,15 @@ class _AddSalePageState extends State<AddSalePage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _customerPhoneController,
-                decoration: const InputDecoration(labelText: 'Customer Phone'),
+                decoration: InputDecoration(
+                  labelText: 'Customer Phone',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -93,37 +119,63 @@ class _AddSalePageState extends State<AddSalePage> {
                   return null;
                 },
               ),
-              TextFormField(
-                controller: _quantityController,
-                decoration: const InputDecoration(labelText: 'Quantity'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a quantity';
-                  }
-                  if (int.tryParse(value) == null || int.parse(value) <= 0) {
-                    return 'Please enter a valid quantity';
-                  }
-                  return null;
-                },
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _quantityController,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a quantity';
+                        }
+                        if (int.tryParse(value) == null || int.parse(value) <= 0) {
+                          return 'Please enter a valid quantity';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _sellPriceController,
+                      decoration: InputDecoration(
+                        labelText: 'Sell Price',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a sell price';
+                        }
+                        if (double.tryParse(value) == null || double.parse(value) <= 0) {
+                          return 'Please enter a valid sell price';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                controller: _sellPriceController,
-                decoration: const InputDecoration(labelText: 'Sell Price'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a sell price';
-                  }
-                  if (double.tryParse(value) == null || double.parse(value) <= 0) {
-                    return 'Please enter a valid sell price';
-                  }
-                  return null;
-                },
-              ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _payAmountController,
-                decoration: const InputDecoration(labelText: 'Pay Amount'),
+                decoration: InputDecoration(
+                  labelText: 'Pay Amount',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -135,7 +187,7 @@ class _AddSalePageState extends State<AddSalePage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -172,7 +224,17 @@ class _AddSalePageState extends State<AddSalePage> {
                     }
                   }
                 },
-                child: const Text('Add Sale'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                child: const Text(
+                  'Add Sale',
+                  style: TextStyle(fontSize: 16,color: AppColors.textOnPrimary),
+                ),
               ),
             ],
           ),

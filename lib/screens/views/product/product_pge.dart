@@ -9,7 +9,6 @@ class ProductsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: AppColors.buttonDisabled,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Container(
@@ -33,9 +32,7 @@ class ProductsPage extends StatelessWidget {
       ),
       body: Consumer<ProductProvider>(
         builder: (context, productProvider, child) {
-          final products = productProvider.filteredProducts.isEmpty
-              ? productProvider.products
-              : productProvider.filteredProducts;
+          final products = productProvider.filteredProducts;
 
           return products.isEmpty
               ? Center(child: Text("No products available"))
@@ -50,7 +47,11 @@ class ProductsPage extends StatelessWidget {
                   border: Border.all(color: AppColors.textSecondary),
                 ),
                 child: ListTile(
-                  title: Text(product.name,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25),),
+                  title: Text(
+                    product.name,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 25),
+                  ),
                   subtitle: Text(
                       'Price: ${product.buyPrice.toStringAsFixed(2)} ৳, Stock: ${product.stock}'),
                   trailing: Row(

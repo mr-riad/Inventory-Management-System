@@ -15,6 +15,7 @@ class _StockPageState extends State<StockPage> {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     // Sorting to move low stock items to the top
     List products = List.from(productProvider.filteredProducts.isEmpty
@@ -25,47 +26,69 @@ class _StockPageState extends State<StockPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: Text("Stock"),
+        title: const Text("Stock"),
+        centerTitle: true,
+        elevation: 10,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                bool isLowStock = product.stock < 5; // Define low stock threshold
-                return Container(
-                  margin: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: isLowStock ? Colors.red : AppColors.textSecondary,
-                      width: isLowStock ? 2 : 1,
-                    ),
-                    color: isLowStock ? Colors.red.withOpacity(0.1) : null,
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      product.name,
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: isLowStock ? Colors.red : Colors.black,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  bool isLowStock = product.stock < 5; // Define low stock threshold
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: isLowStock ? Colors.red.withOpacity(0.1) : Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: isLowStock ? Colors.red : AppColors.textSecondary,
+                        width: isLowStock ? 2 : 1,
                       ),
                     ),
-                    subtitle: Text(
-                      'Stock: ${product.stock}',
-                      style: TextStyle(
-                        color: isLowStock ? Colors.red : Colors.black54,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      title: Text(
+                        product.name,
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.05, // Responsive font size
+                          fontWeight: FontWeight.bold,
+                          color: isLowStock ? Colors.red : Colors.black,
+                        ),
                       ),
+                      subtitle: Text(
+                        'Stock: ${product.stock}',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.04, // Responsive font size
+                          color: isLowStock ? Colors.red : Colors.black54,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        color: isLowStock ? Colors.red : AppColors.primary,
+                      ),
+                      onTap: () {
+                        // Handle product tap
+                      },
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -14,20 +14,30 @@ class AddProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Product'),
+        title: Text('Add Product', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a name';
@@ -35,9 +45,17 @@ class AddProductPage extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -45,9 +63,17 @@ class AddProductPage extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _priceController,
-                decoration: InputDecoration(labelText: 'Buy Price'),
+                decoration: InputDecoration(
+                  labelText: 'Buy Price',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -56,9 +82,17 @@ class AddProductPage extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _stockController,
-                decoration: InputDecoration(labelText: 'Stock'),
+                decoration: InputDecoration(
+                  labelText: 'Stock',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -67,7 +101,7 @@ class AddProductPage extends StatelessWidget {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -82,7 +116,17 @@ class AddProductPage extends StatelessWidget {
                     Navigator.pop(context);
                   }
                 },
-                child: Text('Add Product'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: Text(
+                  'Add Product',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
               ),
             ],
           ),

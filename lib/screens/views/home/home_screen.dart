@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:invetory_management1/providers/product_provider.dart';
 import 'package:invetory_management1/providers/sale_provider.dart';
+import 'package:invetory_management1/screens/views/home/bottom_page/total%20borrow/total_borrow_page.dart';
+import 'package:invetory_management1/screens/views/home/bottom_page/total%20profit/profit_home_page.dart';
 import 'package:invetory_management1/utils/colors.dart';
 import 'package:provider/provider.dart';
 import '../../auth/login_screen.dart';
 import '../borrow/borrow_page.dart';
 import '../customers/customers_page.dart';
 import '../product/product_pge.dart';
+import '../profit/profit_page.dart';
 import '../sales/sale_page.dart';
 import '../stcok/stock_page.dart';
 
@@ -20,21 +23,18 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     DashboardScreen(), // The main content of the home page
-    // TotalPayablePage(), // Total Payable Amount page
-    // TotalSellPage(), // Total Sell page
+    TotalBorrowPage(), // Total Payable Amount page
+    ProfitHomePage(), // Total Sell page
   ];
 
-  //Data load function
-  void loadData() async{
+  // Data load function
+  void loadData() async {
     await context.read<SaleProvider>().fetchSales();
     await context.read<ProductProvider>().fetchProducts();
-    debugPrint('Data Loadded');
-
+    debugPrint('Data Loaded');
   }
 
   @override
-
-  //Data Load system
   void initState() {
     loadData();
     super.initState();
@@ -49,8 +49,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-      body: _pages[_selectedIndex], // Update this line
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -63,11 +62,12 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.attach_money),
-            label: 'Sell',
+            label: 'Total Profit',
           ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
     );
@@ -102,22 +102,37 @@ class DashboardScreen extends StatelessWidget {
       'name': 'Stock',
       'page': StockPage(),
     },
-    // {
-    //   'image': 'images/profit.png',
-    //   'name': 'Profit',
-    //   'page': ProfitPage(),
-    // },
+    {
+      'image': 'images/profit.png',
+      'name': 'Profit',
+      'page': ProfitPage(),
+    },
   ];
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Determine the number of columns based on screen width
+    final crossAxisCount = screenWidth > 600 ? 3 : 2;
+
+    // Adjust font size and image size based on screen size
+    final titleFontSize = screenWidth > 600 ? 40.0 : 30.0;
+    final itemFontSize = screenWidth > 600 ? 22.0 : 18.0;
+    final imageSize = screenWidth > 600 ? 120.0 : 80.0;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Center(
           child: Text(
             'Dashboard',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: AppColors.textOnPrimary),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: titleFontSize,
+              color: AppColors.textOnPrimary,
+            ),
           ),
         ),
         actions: [
@@ -133,49 +148,73 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: 1,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.shade50, Colors.blue.shade100],
           ),
-          itemCount: pages.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => pages[index]['page']),
-                );
-              },
-              child: Card(
-                elevation: 4.0,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+              childAspectRatio: 1,
+            ),
+            itemCount: pages.length,
+            itemBuilder: (context, index) {
+              return Card(
+                elevation: 8.0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(20.0),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      pages[index]['image'],
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20.0),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => pages[index]['page']),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Colors.blue.shade200, Colors.blue.shade400],
+                      ),
                     ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      pages[index]['name'],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          pages[index]['image'],
+                          width: imageSize,
+                          height: imageSize,
+                          fit: BoxFit.cover,
+                        ),
+                        SizedBox(height: 8.0),
+                        Text(
+                          pages[index]['name'],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: itemFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

@@ -22,20 +22,29 @@ class EditProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Product'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a name';
@@ -43,9 +52,18 @@ class EditProductPage extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
+                maxLines: 3,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -53,9 +71,17 @@ class EditProductPage extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _priceController,
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: InputDecoration(
+                  labelText: 'Price',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -64,9 +90,17 @@ class EditProductPage extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _stockController,
-                decoration: InputDecoration(labelText: 'Stock'),
+                decoration: InputDecoration(
+                  labelText: 'Stock',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -75,7 +109,7 @@ class EditProductPage extends StatelessWidget {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -91,7 +125,16 @@ class EditProductPage extends StatelessWidget {
                     Navigator.pop(context);
                   }
                 },
-                child: Text('Update Product'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: Text(
+                  'Update Product',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
             ],
           ),

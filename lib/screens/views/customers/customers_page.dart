@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invetory_management1/utils/colors.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/product_provider.dart';
@@ -19,39 +20,68 @@ class _CustomersPageState extends State<CustomersPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Customers'),
+        backgroundColor: AppColors.primary,
+        title: const Text('Customers', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        elevation: 0,
       ),
-      body: ListView.builder(
-        itemCount: saleProvider.sales.length,
-        itemBuilder: (context, index) {
-          final sale = saleProvider.sales[index];
-          final product = productProvider.products.firstWhere(
-                (p) => p.id == sale.productId,
-          );
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: saleProvider.sales.length,
+          itemBuilder: (context, index) {
+            final sale = saleProvider.sales[index];
+            final product = productProvider.products.firstWhere(
+                  (p) => p.id == sale.productId,
+            );
 
-          return ListTile(
-            title: Text(sale.customerName,style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //Text('Customer: ${sale.customerName}'),
-                Text('Email: ${sale.customerEmail}'),
-                Text('Phone: ${sale.customerPhone}'),
-               // Text('Quantity: ${sale.quantity}'),
-               //  Text('Sell Price: \$${sale.sellPrice.toStringAsFixed(2)}'),
-               //  Text('Total Price: \$${sale.totalPrice.toStringAsFixed(2)}'),
-               //  Text('Pay Amount: \$${sale.payAmount.toStringAsFixed(2)}'),
-               //  Text('Borrow Amount: \$${sale.borrowAmount.toStringAsFixed(2)}'),
-              ],
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete_forever),
-              onPressed: () {
-                saleProvider.deleteSale(sale.id);
-              },
-            ),
-          );
-        },
+            return Card(
+              elevation: 4,
+              margin: const EdgeInsets.only(bottom: 16), // Add margin between cards
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sale.customerName,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Email: ${sale.customerEmail}',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Phone: ${sale.customerPhone}',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.delete_forever, color: Colors.red),
+                        onPressed: () {
+                          saleProvider.deleteSale(sale.id);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

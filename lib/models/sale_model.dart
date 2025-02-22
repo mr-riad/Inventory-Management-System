@@ -9,7 +9,7 @@ class Sale {
   final double sellPrice;
   final double totalPrice;
   final double payAmount;
-  final double borrowAmount;
+  double borrowAmount; // Change to non-final to allow updates
   final DateTime saleDate;
 
   Sale({
@@ -39,7 +39,7 @@ class Sale {
       sellPrice: data['sellPrice'],
       totalPrice: data['totalPrice'],
       payAmount: data['payAmount'],
-      borrowAmount: data['borrowAmount'],
+      borrowAmount: data['borrowAmount'] ?? 0.0, // Default to 0 if null
       saleDate: DateTime.parse(data['saleDate']),
     );
   }
@@ -58,5 +58,9 @@ class Sale {
       'borrowAmount': borrowAmount,
       'saleDate': saleDate.toIso8601String(),
     };
+  }
+
+  void updateBorrowAmount(double newBorrowAmount) {
+    borrowAmount = newBorrowAmount;
   }
 }

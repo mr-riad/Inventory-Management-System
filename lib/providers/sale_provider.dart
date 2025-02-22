@@ -1,9 +1,10 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:invetory_management1/providers/product_provider.dart';
+
 import '../models/sale_model.dart';
-import '../providers/product_provider.dart';
 
 class SaleProvider with ChangeNotifier {
   List<Sale> _sales = [];
@@ -15,7 +16,7 @@ class SaleProvider with ChangeNotifier {
     _sales = snapshot.docs
         .map((doc) => Sale.fromMap(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
-    log(_sales.toString(),name: 'sales');
+    log(_sales.toString(), name: 'sales');
     notifyListeners();
   }
 
@@ -52,6 +53,13 @@ class SaleProvider with ChangeNotifier {
       _sales[index] = sale;
       notifyListeners();
     }
+  }
+
+  Future<void> updateBorrowAmount(String saleId, double newBorrowAmount) async {
+    final sale = _sales.firstWhere((s) => s.id == saleId);
+    sale.updateBorrowAmount(newBorrowAmount);
+    await FirebaseFirestore.instance.collection('sales').doc(saleId).update({'borrowAmount': newBorrowAmount});
+    notifyListeners();
   }
 
   Future<void> deleteSale(String id) async {
