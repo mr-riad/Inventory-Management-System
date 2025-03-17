@@ -40,6 +40,10 @@ dependencies:
   cloud_firestore:
   provider:
   curved_navigation_bar:
+  intl:
+  pdf:
+  printing:
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:

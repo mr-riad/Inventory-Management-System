@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     DashboardScreen(), // The main content of the home page
     TotalBorrowPage(), // Total Payable Amount page
-    ProfitHomePage(), // Total Sell page
+   // ProfitHomePage(), // Total Sell page
   ];
 
   // Data load function
@@ -105,7 +105,7 @@ class DashboardScreen extends StatelessWidget {
     {
       'image': 'images/profit.png',
       'name': 'Profit',
-      'page': ProfitPage(),
+      // 'page': ProfitPage(),
     },
   ];
 

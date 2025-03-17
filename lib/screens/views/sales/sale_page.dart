@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:invetory_management1/screens/views/sales/search_dialog.dart';
-import 'package:invetory_management1/utils/colors.dart';
 import 'package:provider/provider.dart';
-
-import '../../../providers/product_provider.dart';
-import '../../../providers/sale_provider.dart';
-import 'add_sale_page.dart';
-import 'edit_sale_page.dart';
+import 'package:invetory_management1/providers/sale_provider.dart';
+import 'package:invetory_management1/screens/views/sales/add_sale_page.dart';
+import 'package:invetory_management1/screens/views/sales/edit_sale_page.dart';
+import 'package:invetory_management1/screens/views/sales/sales_report_page.dart';
+import 'package:invetory_management1/utils/colors.dart';
 
 class SalePage extends StatefulWidget {
   const SalePage({super.key});
@@ -17,62 +15,111 @@ class SalePage extends StatefulWidget {
 
 class _SalePageState extends State<SalePage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final saleProvider = Provider.of<SaleProvider>(context, listen: false);
+      saleProvider.fetchSales();
+      saleProvider.fetchOldestCustomers();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final saleProvider = Provider.of<SaleProvider>(context);
-    final productProvider = Provider.of<ProductProvider>(context);
-
-    // Get screen size
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    // Responsive font sizes
-    final titleFontSize = screenWidth * 0.06; // 6% of screen width
-    final infoFontSize = screenWidth * 0.04; // 4% of screen width
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: Text(
-          'Sales',
-          style: TextStyle(
-            color: AppColors.textOnPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: titleFontSize,
-          ),
-        ),
-        actions: [
-          IconButton(
-            color: AppColors.textOnPrimary,
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: SaleSearchDelegate(saleProvider, productProvider),
-              );
-            },
-          ),
-        ],
+        title: const Text('Sales', style: TextStyle(color: Colors.white)),
       ),
-      body: saleProvider.sales.isEmpty
-          ? Center(
-        child: Text(
-          'No sales found',
-          style: TextStyle(
-            fontSize: infoFontSize,
-            color: Colors.grey,
-          ),
-        ),
+      body: saleProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : saleProvider.sales.isEmpty
+          ? const Center(
+        child: Text('No sales found', style: TextStyle(color: Colors.grey)),
       )
-          : LayoutBuilder(
-        builder: (context, constraints) {
-          // Use a grid for larger screens, list for smaller screens
-          if (constraints.maxWidth > 600) {
-            return _buildGridLayout(
-                saleProvider, productProvider, infoFontSize);
-          } else {
-            return _buildListLayout(
-                saleProvider, productProvider, infoFontSize);
-          }
+          : ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: saleProvider.sales.length,
+        itemBuilder: (context, index) {
+          final sale = saleProvider.sales[index];
+          final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(sale.customerName);
+
+          return Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.only(bottom: 16),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(16),
+              title: Text(sale.customerName,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  _buildInfoRow(Icons.email, sale.customerEmail),
+                  _buildInfoRow(Icons.phone, sale.customerPhone),
+                  const SizedBox(height: 8),
+                  Text(
+                      'Total Price: ${sale.totalPrice.toStringAsFixed(2)}৳',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Pay Amount: ${sale.payAmount.toStringAsFixed(2)}৳'),
+                  Text(
+                      'Borrow Amount: ${sale.borrowAmount.toStringAsFixed(2)}৳',
+                      style: const TextStyle(color: Colors.red)),
+                  Text(
+                      'Total Borrow Amount: ${totalBorrowAmount.toStringAsFixed(2)}৳',
+                      style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  const Text('Sold Products:',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: sale.soldProducts.map((product) {
+                      return Text(
+                          '- ${product.productName} (x${product.quantity})  @  ${product.sellPrice}৳');
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Sale Date: ${sale.saleDate.toString()}'),
+                ],
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditSalePage(sale: sale)),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_forever, color: Colors.red),
+                    onPressed: () async {
+                      await saleProvider.deleteSale(sale.id);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.print, color: Colors.green),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SaleReportPage(sale: sale, totalBorrowAmount: totalBorrowAmount),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -80,184 +127,20 @@ class _SalePageState extends State<SalePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const AddSalePage(),
-            ),
+            MaterialPageRoute(builder: (context) => const AddSalePage()),
           );
         },
-        child: const Icon(Icons.add, color: AppColors.textOnPrimary),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildListLayout(SaleProvider saleProvider,
-      ProductProvider productProvider, double infoFontSize) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: saleProvider.sales.length,
-      itemBuilder: (context, index) {
-        final sale = saleProvider.sales[index];
-        final product = productProvider.products.firstWhere(
-              (p) => p.id == sale.productId,
-        );
-
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.only(bottom: 16),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            title: Text(
-              product.name,
-              style: TextStyle(
-                fontSize: infoFontSize * 1.2,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.person, sale.customerName, infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.email, sale.customerEmail, infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.phone, sale.customerPhone, infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.shopping_cart, 'Quantity: ${sale.quantity}',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.attach_money,
-                    'Sell Price: ${sale.sellPrice.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.money,
-                    'Total Price: ${sale.totalPrice.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.payment,
-                    'Pay Amount: ${sale.payAmount.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.money_off,
-                    'Borrow Amount: ${sale.borrowAmount.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditSalePage(sale: sale),
-                      ),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_forever, color: Colors.red),
-                  onPressed: () {
-                    saleProvider.deleteSale(sale.id);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGridLayout(SaleProvider saleProvider,
-      ProductProvider productProvider, double infoFontSize) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // 2 columns for larger screens
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 1.5, // Adjust aspect ratio as needed
-      ),
-      itemCount: saleProvider.sales.length,
-      itemBuilder: (context, index) {
-        final sale = saleProvider.sales[index];
-        final product = productProvider.products.firstWhere(
-              (p) => p.id == sale.productId,
-        );
-
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: TextStyle(
-                    fontSize: infoFontSize * 1.2,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.person, sale.customerName, infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.email, sale.customerEmail, infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.phone, sale.customerPhone, infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(Icons.shopping_cart, 'Quantity: ${sale.quantity}',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.attach_money,
-                    'Sell Price: ${sale.sellPrice.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.money,
-                    'Total Price: ${sale.totalPrice.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.payment,
-                    'Pay Amount: ${sale.payAmount.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                    Icons.money_off,
-                    'Borrow Amount: ${sale.borrowAmount.toStringAsFixed(2)}\৳',
-                    infoFontSize),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text, double fontSize) {
+  Widget _buildInfoRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: fontSize, color: Colors.grey),
+        Icon(icon, size: 18, color: Colors.grey),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(fontSize: fontSize),
-        ),
+        Text(text),
       ],
     );
   }

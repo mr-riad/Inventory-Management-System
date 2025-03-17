@@ -1,88 +1,173 @@
 import 'package:flutter/material.dart';
-import 'package:invetory_management1/utils/colors.dart';
 import 'package:provider/provider.dart';
-
-import '../../../providers/product_provider.dart';
+import '../../../models/sale_model.dart';
 import '../../../providers/sale_provider.dart';
 
 class CustomersPage extends StatefulWidget {
-  const CustomersPage({super.key});
-
   @override
-  State<CustomersPage> createState() => _CustomersPageState();
+  _CustomersPageState createState() => _CustomersPageState();
 }
 
 class _CustomersPageState extends State<CustomersPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch sales data when the page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<SaleProvider>(context, listen: false).fetchSales();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final saleProvider = Provider.of<SaleProvider>(context);
-    final productProvider = Provider.of<ProductProvider>(context);
+    final aggregatedSales = saleProvider.getAggregatedSales();
+
+    // Filter customers based on search query
+    final filteredCustomers = aggregatedSales.entries.where((entry) {
+      return entry.key.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        title: const Text('Customers', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        elevation: 0,
+        title: Text('Customers'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: CustomerSearchDelegate(aggregatedSales.entries.toList()),
+              );
+            },
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: saleProvider.sales.length,
-          itemBuilder: (context, index) {
-            final sale = saleProvider.sales[index];
-            final product = productProvider.products.firstWhere(
-                  (p) => p.id == sale.productId,
-            );
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search Customers',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: saleProvider.isLoading
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+              itemCount: filteredCustomers.length,
+              itemBuilder: (context, index) {
+                final entry = filteredCustomers[index];
+                final customerName = entry.key;
+                final sales = entry.value;
 
-            return Card(
-              elevation: 4,
-              margin: const EdgeInsets.only(bottom: 16), // Add margin between cards
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      sale.customerName,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Email: ${sale.customerEmail}',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Phone: ${sale.customerPhone}',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: IconButton(
-                        icon: const Icon(Icons.delete_forever, color: Colors.red),
-                        onPressed: () {
-                          saleProvider.deleteSale(sale.id);
-                        },
+                // Calculate total purchase amount (sum of all products sold)
+                double totalPurchaseAmount = sales.fold(0, (sum, sale) {
+                  return sum + sale.totalPrice; // Assuming totalPrice is the total purchase amount for the sale
+                });
+
+                // Get customer details from the first sale (assuming all sales have the same customer details)
+                final customerDetails = sales.first;
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ExpansionTile(
+                    title: Text(customerName),
+                    subtitle: Text('Total Purchase Amount: \$${totalPurchaseAmount.toStringAsFixed(2)}'),
+                    children: [
+                      ListTile(
+                        title: Text('Email: ${customerDetails.customerEmail}'),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
+                      ListTile(
+                        title: Text('Mobile: ${customerDetails.customerPhone}'),
+                      ),
+                      ListTile(
+                        title: Text('Address: ${customerDetails.customerAddress ?? 'N/A'}'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
+  }
+}
+
+// Custom search delegate for customers
+class CustomerSearchDelegate extends SearchDelegate<String> {
+  final List<MapEntry<String, List<Sale>>> customers;
+
+  CustomerSearchDelegate(this.customers);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, ''); // Provide a default value instead of null
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = customers.where((entry) {
+      return entry.key.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final entry = results[index];
+        final customerName = entry.key;
+        final sales = entry.value;
+
+        // Calculate total purchase amount (sum of all products sold)
+        double totalPurchaseAmount = sales.fold(0, (sum, sale) {
+          return sum + sale.totalPrice; // Assuming totalPrice is the total purchase amount for the sale
+        });
+
+        return ListTile(
+          title: Text(customerName),
+          subtitle: Text('Total Purchase Amount: \$${totalPurchaseAmount.toStringAsFixed(2)}'),
+          onTap: () {
+            close(context, customerName); // Pass customerName instead of null
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return buildResults(context);
   }
 }

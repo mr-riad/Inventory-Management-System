@@ -40,12 +40,18 @@ class _StockPageState extends State<StockPage> {
                 itemBuilder: (context, index) {
                   final product = products[index];
                   bool isLowStock = product.stock < 5; // Define low stock threshold
+                  bool isOutOfStock = product.stock == 0; // Define out-of-stock threshold
+
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      color: isLowStock ? Colors.red.withOpacity(0.1) : Colors.white,
+                      color: isOutOfStock
+                          ? Colors.grey.withOpacity(0.1) // Grey for out-of-stock
+                          : isLowStock
+                          ? Colors.red.withOpacity(0.1) // Red for low stock
+                          : Colors.white,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
@@ -54,8 +60,12 @@ class _StockPageState extends State<StockPage> {
                         ),
                       ],
                       border: Border.all(
-                        color: isLowStock ? Colors.red : AppColors.textSecondary,
-                        width: isLowStock ? 2 : 1,
+                        color: isOutOfStock
+                            ? Colors.grey
+                            : isLowStock
+                            ? Colors.red
+                            : AppColors.textSecondary,
+                        width: isOutOfStock || isLowStock ? 2 : 1,
                       ),
                     ),
                     child: ListTile(
@@ -65,22 +75,42 @@ class _StockPageState extends State<StockPage> {
                         style: TextStyle(
                           fontSize: screenWidth * 0.05, // Responsive font size
                           fontWeight: FontWeight.bold,
-                          color: isLowStock ? Colors.red : Colors.black,
+                          color: isOutOfStock
+                              ? Colors.grey
+                              : isLowStock
+                              ? Colors.red
+                              : Colors.black,
                         ),
                       ),
                       subtitle: Text(
                         'Stock: ${product.stock}',
                         style: TextStyle(
                           fontSize: screenWidth * 0.04, // Responsive font size
-                          color: isLowStock ? Colors.red : Colors.black54,
+                          color: isOutOfStock
+                              ? Colors.grey
+                              : isLowStock
+                              ? Colors.red
+                              : Colors.black54,
                         ),
                       ),
                       trailing: Icon(
                         Icons.arrow_forward_ios,
-                        color: isLowStock ? Colors.red : AppColors.primary,
+                        color: isOutOfStock
+                            ? Colors.grey
+                            : isLowStock
+                            ? Colors.red
+                            : AppColors.primary,
                       ),
                       onTap: () {
-                        // Handle product tap
+                        if (isOutOfStock) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${product.name} is out of stock and cannot be sold.'),
+                            ),
+                          );
+                        } else {
+                          // Handle product tap for in-stock products
+                        }
                       },
                     ),
                   );

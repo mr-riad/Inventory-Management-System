@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
-
 import '../../../models/sale_model.dart';
-import '../../../providers/product_provider.dart';
 import '../../../providers/sale_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class BorrowPage extends StatefulWidget {
   const BorrowPage({super.key});
@@ -17,6 +18,12 @@ class _BorrowPageState extends State<BorrowPage> {
   String _searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    Provider.of<SaleProvider>(context, listen: false).fetchSales();
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -25,126 +32,84 @@ class _BorrowPageState extends State<BorrowPage> {
   @override
   Widget build(BuildContext context) {
     final saleProvider = Provider.of<SaleProvider>(context);
-    final productProvider = Provider.of<ProductProvider>(context);
+    final aggregatedSales = saleProvider.getAggregatedSales();
 
-    final filteredSales = saleProvider.sales.where((sale) {
-      final matchesSearch = sale.customerName.toLowerCase().contains(_searchQuery.toLowerCase());
-      final hasBorrowAmount = sale.borrowAmount > 0;
-      return matchesSearch && hasBorrowAmount;
+    // Search filter
+    final filteredSales = aggregatedSales.entries.where((entry) {
+      return entry.key.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Borrow',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+        title: const Text('Due'),
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
-        elevation: 10,
-        shadowColor: Colors.blueAccent.withOpacity(0.5),
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  labelText: 'Search by Customer Name',
-                  labelStyle: TextStyle(color: Colors.grey[600]),
-                  prefixIcon: const Icon(Icons.search, color: Colors.blueAccent),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.clear, color: Colors.blueAccent),
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() {
-                        _searchQuery = '';
-                      });
-                    },
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search by Customer Name',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
               ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
             ),
           ),
           Expanded(
             child: ListView.builder(
               itemCount: filteredSales.length,
               itemBuilder: (context, index) {
-                final sale = filteredSales[index];
-                final product = productProvider.products.firstWhere(
-                      (p) => p.id == sale.productId,
-                );
+                final entry = filteredSales[index];
+                final customerName = entry.key;
+                final sales = entry.value;
+
+                double totalBorrowAmount = sales.fold(0, (sum, sale) => sum + sale.borrowAmount);
+                double totalPayAmount = sales.fold(0, (sum, sale) => sum + sale.payAmount);
 
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    title: Text(
-                      sale.customerName,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        Text(
-                          'Email: ${sale.customerEmail}',
-                          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Phone: ${sale.customerPhone}',
-                          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Borrow Amount: ${sale.borrowAmount.toStringAsFixed(2)} \৳',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
-                        ),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                  child: ExpansionTile(
+                    title: Text(customerName),
+                    subtitle: Text('Total Due Amount: ${totalBorrowAmount.toStringAsFixed(2)}'),
+                    children: [
+                      ListTile(
+                        title: Text('Total Due Amount: ${totalBorrowAmount.toStringAsFixed(2)}'),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.payment),
                           onPressed: () {
-                            _editBorrowAmount(context, sale);
+                            _recordTotalPayment(context, customerName, totalBorrowAmount, sales);
                           },
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_forever, color: Colors.red),
-                          onPressed: () {
-                            saleProvider.deleteSale(sale.id);
-                          },
-                        ),
-                      ],
-                    ),
+                      ),
+                      ...sales.map((sale) {
+                        return ListTile(
+                          title: Text('Sale Date: ${sale.saleDate.toString()}'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Due Amount: ${sale.borrowAmount.toStringAsFixed(2)}'),
+                              Text('Last Paid Amount: ${sale.payAmount.toStringAsFixed(2)}'),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ],
                   ),
                 );
               },
@@ -155,25 +120,18 @@ class _BorrowPageState extends State<BorrowPage> {
     );
   }
 
-  void _editBorrowAmount(BuildContext context, Sale sale) {
-    final TextEditingController _borrowAmountController = TextEditingController(text: sale.borrowAmount.toString());
+  void _recordTotalPayment(BuildContext context, String customerName, double totalDueAmount, List<Sale> sales) {
+    final TextEditingController _paymentAmountController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(
-            'Edit Borrow Amount',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent),
-          ),
+          title: const Text('Record Total Payment'),
           content: TextField(
-            controller: _borrowAmountController,
+            controller: _paymentAmountController,
             decoration: const InputDecoration(
-              labelText: 'Borrow Amount',
-              labelStyle: TextStyle(color: Colors.blueAccent),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.blueAccent),
-              ),
+              labelText: 'Payment Amount',
             ),
             keyboardType: TextInputType.number,
           ),
@@ -182,25 +140,57 @@ class _BorrowPageState extends State<BorrowPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                final newBorrowAmount = double.tryParse(_borrowAmountController.text) ?? 0.0;
-                Provider.of<SaleProvider>(context, listen: false).updateBorrowAmount(sale.id, newBorrowAmount);
-                Navigator.of(context).pop();
+                final paymentAmount = double.tryParse(_paymentAmountController.text) ?? 0.0;
+                if (paymentAmount <= totalDueAmount) {
+                  for (var sale in sales) {
+                    Provider.of<SaleProvider>(context, listen: false)
+                        .addPaymentRecord(sale.id, paymentAmount / sales.length, DateTime.now());
+                  }
+                  Navigator.of(context).pop();
+                  _printTotalPaymentBill(customerName, totalDueAmount, paymentAmount);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Payment amount cannot exceed total due amount')),
+                  );
+                }
               },
-              child: const Text(
-                'Save',
-                style: TextStyle(color: Colors.blueAccent),
-              ),
+              child: const Text('Save'),
             ),
           ],
         );
       },
+    );
+  }
+
+  Future<void> _printTotalPaymentBill(String customerName, double totalDueAmount, double paymentAmount) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Customer Bill', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Text('Customer Name: $customerName'),
+              pw.SizedBox(height: 20),
+              pw.Text('Total Due Amount: ${totalDueAmount.toStringAsFixed(2)}'),
+              pw.Text('Payment Amount: ${paymentAmount.toStringAsFixed(2)}'),
+              pw.SizedBox(height: 20),
+              pw.Text('Payment Date: ${DateTime.now().toString()}'),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
     );
   }
 }

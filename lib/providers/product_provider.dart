@@ -9,10 +9,9 @@ class ProductProvider with ChangeNotifier {
 
   List<Product> get products => _products;
 
-  // Getter for filtered products based on search query
   List<Product> get filteredProducts {
     if (_searchQuery.isEmpty) {
-      return _products;
+      return _products; // Show all products, including those with zero stock
     } else {
       return _products
           .where((product) =>
@@ -21,7 +20,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Method to update the search query
   void searchProducts(String query) {
     _searchQuery = query;
     notifyListeners();
@@ -29,7 +27,9 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> fetchProducts() async {
     final snapshot = await FirebaseFirestore.instance.collection('products').get();
-    _products = snapshot.docs.map((doc) => Product.fromMap(doc.data(), doc.id)).toList();
+    _products = snapshot.docs
+        .map((doc) => Product.fromMap(doc.data(), doc.id))
+        .toList(); // Fetch all products, including those with zero stock
     notifyListeners();
   }
 
