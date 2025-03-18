@@ -44,6 +44,11 @@ dependencies:
   pdf:
   printing:
   shared_preferences:
+  barcode:
+  qr_flutter:
+  barcode_widget:
+  url_launcher:
+  go_router:
 
 dev_dependencies:
   flutter_test:

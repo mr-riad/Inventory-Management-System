@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
 
 import '../../../models/sale_model.dart';
 
@@ -79,6 +83,13 @@ class SaleReportPage extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () async {
           final pdf = pw.Document();
+
+          // Generate QR code data
+          final qrData = _generateQRData(sale);
+
+          // Generate QR code image
+          final qrImage = await _generateQRImage(qrData);
+
           pdf.addPage(
             pw.Page(
               build: (pw.Context context) {
@@ -99,6 +110,14 @@ class SaleReportPage extends StatelessWidget {
                     pw.Text('Pay Amount: \৳${sale.payAmount}'),
                     pw.Text('Borrow Amount: \৳${sale.borrowAmount}'),
                     pw.Text('Total Borrow Amount: \৳$totalBorrowAmount', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(height: 20),
+                    pw.Center(
+                      child: pw.Image(
+                        pw.MemoryImage(qrImage),
+                        width: 150,
+                        height: 150,
+                      ),
+                    ),
                   ],
                 );
               },
@@ -116,5 +135,38 @@ class SaleReportPage extends StatelessWidget {
         child: const Text('Print Report'),
       ),
     );
+  }
+
+  // Generate QR code data
+  String _generateQRData(Sale sale) {
+    final invoiceDetails = {
+      'customerName': sale.customerName,
+      'customerEmail': sale.customerEmail,
+      'customerPhone': sale.customerPhone,
+      'totalPrice': sale.totalPrice,
+      'payAmount': sale.payAmount,
+      'borrowAmount': sale.borrowAmount,
+      'soldProducts': sale.soldProducts.map((product) => {
+        'productName': product.productName,
+        'quantity': product.quantity,
+        'sellPrice': product.sellPrice,
+      }).toList(),
+    };
+    return invoiceDetails.toString();
+  }
+
+  // Generate QR code image
+  Future<Uint8List> _generateQRImage(String data) async {
+    final qrPainter = QrPainter(
+      data: data,
+      version: QrVersions.auto,
+      gapless: false,
+      color: ui.Color(0xFF000000), // Use `ui.Color` for black
+      emptyColor: ui.Color(0xFFFFFFFF), // Use `ui.Color` for white
+    );
+
+    final ui.Image qrImage = await qrPainter.toImage(200);
+    final ByteData? byteData = await qrImage.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 }
