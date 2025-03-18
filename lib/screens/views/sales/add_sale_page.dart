@@ -228,13 +228,16 @@ class _AddSalePageState extends State<AddSalePage> {
                 },
               ),
               const SizedBox(height: 20),
-              ..._selectedProducts.map((product) {
+              ..._selectedProducts.asMap().entries.map((entry) {
+                final index = entry.key + 1; // Serial number
+                final product = entry.value;
                 return ListTile(
+                  leading: Text('$index.', style: TextStyle(fontSize: 16)),
                   title: Text(product['productName']),
                   subtitle: Text('Quantity: ${product['quantity']}, Price: \৳${product['sellPrice']}'),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () => _removeProduct(_selectedProducts.indexOf(product)),
+                    onPressed: () => _removeProduct(entry.key),
                   ),
                 );
               }).toList(),

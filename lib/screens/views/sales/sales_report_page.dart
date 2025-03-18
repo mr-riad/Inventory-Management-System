@@ -6,8 +6,11 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:html' as html; // For web platform only
+import 'package:intl/intl.dart'; // For date formatting
 
-import '../../../models/sale_model.dart';
+import '../../../models/sale_model.dart'; // Adjust the path to your Sale model
 
 class SaleReportPage extends StatelessWidget {
   final Sale sale;
@@ -23,6 +26,10 @@ class SaleReportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Generate invoice number and date
+    final String invoiceNumber = _generateInvoiceNumber();
+    final String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sale Report'),
@@ -32,16 +39,43 @@ class SaleReportPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildCompanyInfo(),
+            const SizedBox(height: 20),
+            _buildInvoiceDetails(invoiceNumber, currentDate), // Add invoice details
+            const SizedBox(height: 20),
             _buildCustomerInfo(),
             const SizedBox(height: 20),
             _buildSoldProducts(),
             const SizedBox(height: 20),
             _buildPaymentInfo(),
             const SizedBox(height: 30),
-            _buildPrintButton(context),
+            _buildPrintButton(context, invoiceNumber, currentDate), // Pass invoice details
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCompanyInfo() {
+    return Center(
+      child: Column(
+        children: [
+          Text("M/S ADIB PHARMACY", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text("Proprietor: Al-Amin"),
+          Text("Matipara Bazar, Rajbari sadar, Rajbari"),
+          Text("Cell: 01714904466, 01910014101"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInvoiceDetails(String invoiceNumber, String currentDate) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Invoice Number: $invoiceNumber', style: TextStyle(fontSize: 16)),
+        Text('Date: $currentDate', style: TextStyle(fontSize: 16)),
+      ],
     );
   }
 
@@ -62,8 +96,11 @@ class SaleReportPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Sold Products:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ...sale.soldProducts.map((product) {
+        ...sale.soldProducts.asMap().entries.map((entry) {
+          final index = entry.key + 1; // Serial number
+          final product = entry.value;
           return ListTile(
+            leading: Text('$index.', style: TextStyle(fontSize: 16)),
             title: Text(product.productName, style: TextStyle(fontSize: 16)),
             subtitle: Text('Quantity: ${product.quantity}, Price: \৳${product.sellPrice}', style: TextStyle(fontSize: 14)),
           );
@@ -77,15 +114,15 @@ class SaleReportPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Total Price: \৳${sale.totalPrice}', style: TextStyle(fontSize: 16)),
+        Text('Previous Due: \৳$previousDue', style: TextStyle(fontSize: 16, color: Colors.orange)),
         Text('Pay Amount: \৳${sale.payAmount}', style: TextStyle(fontSize: 16)),
         Text('Borrow Amount: \৳${sale.borrowAmount}', style: TextStyle(fontSize: 16)),
-        Text('Previous Due: \৳$previousDue', style: TextStyle(fontSize: 16, color: Colors.orange)),
         Text('Total Borrow Amount: \৳$totalBorrowAmount', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ],
     );
   }
 
-  Widget _buildPrintButton(BuildContext context) {
+  Widget _buildPrintButton(BuildContext context, String invoiceNumber, String currentDate) {
     return Center(
       child: ElevatedButton(
         onPressed: () async {
@@ -106,22 +143,49 @@ class SaleReportPage extends StatelessWidget {
                 return pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
+                    // Company Info
+                    pw.Center(
+                      child: pw.Column(
+                        children: [
+                          pw.Text("M/S ADIB PHARMACY", style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                          pw.Text("Proprietor: Al-Amin"),
+                          pw.Text("Matipara Bazar, Rajbari sadar, Rajbari"),
+                          pw.Text("Cell:  01714904466, 01910014101"),
+                          pw.SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+
+                    // Invoice Details
+                    pw.Text('Invoice Number: $invoiceNumber'),
+                    pw.Text('Date: $currentDate'),
+                    pw.SizedBox(height: 20),
+
+                    // Customer Info
                     pw.Text('Customer Name: ${sale.customerName}'),
                     pw.Text('Customer Email: ${sale.customerEmail}'),
                     pw.Text('Customer Phone: ${sale.customerPhone}'),
                     pw.Text('Customer Address: ${sale.customerAddress ?? 'N/A'}'),
                     pw.SizedBox(height: 20),
+
+                    // Sold Products
                     pw.Text('Sold Products:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-                    ...sale.soldProducts.map((product) {
-                      return pw.Text('${product.productName} - Quantity: ${product.quantity}, Price: \৳${product.sellPrice}');
+                    ...sale.soldProducts.asMap().entries.map((entry) {
+                      final index = entry.key + 1; // Serial number
+                      final product = entry.value;
+                      return pw.Text('$index. ${product.productName} - Quantity: ${product.quantity}, Price: ${product.sellPrice} Taka');
                     }).toList(),
                     pw.SizedBox(height: 20),
-                    pw.Text('Total Price: \৳${sale.totalPrice}'),
-                    pw.Text('Previous Due: \৳$previousDue', style: pw.TextStyle(fontSize: 16, color: PdfColors.orange)),
-                    pw.Text('Pay Amount: \৳${sale.payAmount}'),
-                    pw.Text('Borrow Amount: \৳${sale.borrowAmount}'),
-                    pw.Text('Total Borrow Amount: \৳$totalBorrowAmount', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+
+                    // Payment Info
+                    pw.Text('Total Price: ${sale.totalPrice} Taka'),
+                    pw.Text('Previous Due: $previousDue Taka', style: pw.TextStyle(fontSize: 16, color: PdfColors.orange)),
+                    pw.Text('Pay Amount: ${sale.payAmount} Taka'),
+                    pw.Text('Borrow Amount: ${sale.borrowAmount} Taka'),
+                    pw.Text('Total Borrow Amount: $totalBorrowAmount Taka', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
                     pw.SizedBox(height: 20),
+
+                    // QR Code
                     pw.Center(
                       child: pw.Image(
                         pw.MemoryImage(qrImage),
@@ -136,13 +200,17 @@ class SaleReportPage extends StatelessWidget {
           );
 
           print('PDF generated');
-          await Printing.layoutPdf(
-            onLayout: (PdfPageFormat format) async {
-              final pdfData = await pdf.save(); // Await the Future<Uint8List>
-              print('PDF data length: ${pdfData.length}');
-              return pdfData;
-            },
-          );
+          final pdfData = await pdf.save(); // Save the PDF
+
+          // Platform-specific printing/downloading
+          if (kIsWeb) {
+            _printPdf(pdfData); // For web, download the PDF
+          } else {
+            await Printing.layoutPdf(
+              onLayout: (PdfPageFormat format) async => pdfData,
+            ); // For mobile and desktop, print the PDF
+          }
+
           print('Printing completed');
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -152,6 +220,13 @@ class SaleReportPage extends StatelessWidget {
         child: const Text('Print Report'),
       ),
     );
+  }
+
+  // Generate invoice number
+  String _generateInvoiceNumber() {
+    final now = DateTime.now();
+    final invoiceNumber = 'INV-${now.millisecondsSinceEpoch}'; // Unique invoice number
+    return invoiceNumber;
   }
 
   // Generate QR code data
@@ -186,5 +261,19 @@ class SaleReportPage extends StatelessWidget {
     final ui.Image qrImage = await qrPainter.toImage(200);
     final ByteData? byteData = await qrImage.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
+  }
+
+  // For web platform: Download PDF
+  void _printPdf(Uint8List pdfData) {
+    final blob = html.Blob([pdfData], 'application/pdf');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.document.createElement('a') as html.AnchorElement
+      ..href = url
+      ..style.display = 'none'
+      ..download = 'sale_report.pdf';
+    html.document.body?.children.add(anchor);
+    anchor.click();
+    html.document.body?.children.remove(anchor);
+    html.Url.revokeObjectUrl(url);
   }
 }
