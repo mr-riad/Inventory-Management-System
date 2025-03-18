@@ -49,6 +49,7 @@ dependencies:
   barcode_widget:
   url_launcher:
   go_router:
+  js:
 
 dev_dependencies:
   flutter_test:

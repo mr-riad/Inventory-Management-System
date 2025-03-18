@@ -45,6 +45,7 @@ class _SalePageState extends State<SalePage> {
         itemBuilder: (context, index) {
           final sale = saleProvider.sales[index];
           final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(sale.customerName);
+          final previousDue = totalBorrowAmount - sale.borrowAmount;
 
           return Card(
             elevation: 4,
@@ -65,6 +66,8 @@ class _SalePageState extends State<SalePage> {
                   Text(
                       'Total Price: ${sale.totalPrice.toStringAsFixed(2)}৳',
                       style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Previous Due: ${previousDue.toStringAsFixed(2)}৳',
+                      style: const TextStyle(color: Colors.orange)),
                   Text('Pay Amount: ${sale.payAmount.toStringAsFixed(2)}৳'),
                   Text(
                       'Borrow Amount: ${sale.borrowAmount.toStringAsFixed(2)}৳',

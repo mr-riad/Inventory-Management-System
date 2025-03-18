@@ -6,14 +6,23 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
+import 'dart:html' as html; // For web-specific printing
+import 'package:js/js.dart';
 
-import '../../../models/sale_model.dart';
+import '../../../models/sale_model.dart'; // For JavaScript interop
+
+@JS('window.print')
+external void jsPrint();
 
 class SaleReportPage extends StatelessWidget {
   final Sale sale;
   final double totalBorrowAmount;
 
-  const SaleReportPage({Key? key, required this.sale, required this.totalBorrowAmount}) : super(key: key);
+  const SaleReportPage({
+    Key? key,
+    required this.sale,
+    required this.totalBorrowAmount,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +52,10 @@ class SaleReportPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Customer Name: ${sale.customerName}', style: TextStyle(fontSize: 16)),
-        Text('Customer Email: ${sale.customerEmail}', style: TextStyle(fontSize: 16)),
-        Text('Customer Phone: ${sale.customerPhone}', style: TextStyle(fontSize: 16)),
-        Text('Customer Address: ${sale.customerAddress ?? 'N/A'}', style: TextStyle(fontSize: 16)),
+        Text('Customer Name: ${sale.customerName}', style: const TextStyle(fontSize: 16)),
+        Text('Customer Email: ${sale.customerEmail}', style: const TextStyle(fontSize: 16)),
+        Text('Customer Phone: ${sale.customerPhone}', style: const TextStyle(fontSize: 16)),
+        Text('Customer Address: ${sale.customerAddress ?? 'N/A'}', style: const TextStyle(fontSize: 16)),
       ],
     );
   }
@@ -58,8 +67,8 @@ class SaleReportPage extends StatelessWidget {
         const Text('Sold Products:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ...sale.soldProducts.map((product) {
           return ListTile(
-            title: Text(product.productName, style: TextStyle(fontSize: 16)),
-            subtitle: Text('Quantity: ${product.quantity}, Price: \৳${product.sellPrice}', style: TextStyle(fontSize: 14)),
+            title: Text(product.productName, style: const TextStyle(fontSize: 16)),
+            subtitle: Text('Quantity: ${product.quantity}, Price: \৳${product.sellPrice}', style: const TextStyle(fontSize: 14)),
           );
         }).toList(),
       ],
@@ -70,10 +79,10 @@ class SaleReportPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Total Price: \৳${sale.totalPrice}', style: TextStyle(fontSize: 16)),
-        Text('Pay Amount: \৳${sale.payAmount}', style: TextStyle(fontSize: 16)),
-        Text('Borrow Amount: \৳${sale.borrowAmount}', style: TextStyle(fontSize: 16)),
-        Text('Total Borrow Amount: \৳$totalBorrowAmount', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('Total Price: \৳${sale.totalPrice}', style: const TextStyle(fontSize: 16)),
+        Text('Pay Amount: \৳${sale.payAmount}', style: const TextStyle(fontSize: 16)),
+        Text('Borrow Amount: \৳${sale.borrowAmount}', style: const TextStyle(fontSize: 16)),
+        Text('Total Borrow Amount: \৳$totalBorrowAmount', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -86,10 +95,9 @@ class SaleReportPage extends StatelessWidget {
 
           // Generate QR code data
           final qrData = _generateQRData(sale);
-
-          // Generate QR code image
           final qrImage = await _generateQRImage(qrData);
 
+          // Add content to the PDF
           pdf.addPage(
             pw.Page(
               build: (pw.Context context) {
@@ -124,9 +132,22 @@ class SaleReportPage extends StatelessWidget {
             ),
           );
 
-          await Printing.layoutPdf(
-            onLayout: (PdfPageFormat format) async => pdf.save(),
-          );
+          // Save and print the PDF
+          final pdfData = await pdf.save();
+
+          // For web, use `dart:html` to trigger the print dialog
+          if (isWeb()) {
+            final blob = html.Blob([pdfData], 'application/pdf');
+            final url = html.Url.createObjectUrlFromBlob(blob);
+            final window = html.window.open(url, '_blank');
+            jsPrint(); // Call the JavaScript print function
+            html.Url.revokeObjectUrl(url);
+          } else {
+            // For mobile, use the `printing` package
+            await Printing.layoutPdf(
+              onLayout: (PdfPageFormat format) async => pdfData,
+            );
+          }
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Printing successful')),
@@ -161,12 +182,17 @@ class SaleReportPage extends StatelessWidget {
       data: data,
       version: QrVersions.auto,
       gapless: false,
-      color: ui.Color(0xFF000000), // Use `ui.Color` for black
-      emptyColor: ui.Color(0xFFFFFFFF), // Use `ui.Color` for white
+      color: ui.Color(0xFF000000), // Black
+      emptyColor: ui.Color(0xFFFFFFFF), // White
     );
 
     final ui.Image qrImage = await qrPainter.toImage(200);
     final ByteData? byteData = await qrImage.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
+  }
+
+  // Check if the app is running on the web
+  bool isWeb() {
+    return identical(0, 0.0);
   }
 }
