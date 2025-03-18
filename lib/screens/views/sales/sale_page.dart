@@ -114,7 +114,11 @@ class _SalePageState extends State<SalePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SaleReportPage(sale: sale, totalBorrowAmount: totalBorrowAmount),
+                          builder: (context) => SaleReportPage(
+                            sale: sale,
+                            totalBorrowAmount: totalBorrowAmount,
+                            previousDue: previousDue, // Pass the previous due amount
+                          ),
                         ),
                       );
                     },
