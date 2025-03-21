@@ -50,6 +50,7 @@ dependencies:
   url_launcher:
   go_router:
   js:
+  html:
 
 dev_dependencies:
   flutter_test:

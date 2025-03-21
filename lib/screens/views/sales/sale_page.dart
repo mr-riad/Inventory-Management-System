@@ -44,7 +44,7 @@ class _SalePageState extends State<SalePage> {
         itemCount: saleProvider.sales.length,
         itemBuilder: (context, index) {
           final sale = saleProvider.sales[index];
-          final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(sale.customerName);
+          final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(sale.customerName, 0.0); // Pass 0.0 as the second argument
           final previousDue = totalBorrowAmount - sale.borrowAmount;
 
           return Card(
@@ -117,7 +117,7 @@ class _SalePageState extends State<SalePage> {
                           builder: (context) => SaleReportPage(
                             sale: sale,
                             totalBorrowAmount: totalBorrowAmount,
-                            previousDue: previousDue, // Pass the previous due amount
+                            previousDue: previousDue,
                           ),
                         ),
                       );

@@ -13,6 +13,7 @@ class SaleProvider with ChangeNotifier {
   List<Sale> get oldestCustomers => _oldestCustomers;
   bool get isLoading => _isLoading;
 
+  // Fetch sales from Firestore
   Future<void> fetchSales() async {
     _isLoading = true;
     Future.microtask(() => notifyListeners());
@@ -34,6 +35,7 @@ class SaleProvider with ChangeNotifier {
     }
   }
 
+  // Fetch oldest customers from Firestore
   Future<void> fetchOldestCustomers() async {
     _isLoading = true;
     Future.microtask(() => notifyListeners());
@@ -55,11 +57,17 @@ class SaleProvider with ChangeNotifier {
     }
   }
 
+  // Add a new sale to Firestore
   Future<void> addSale(Sale sale, ProductProvider productProvider) async {
     _isLoading = true;
     notifyListeners();
 
     try {
+      // Calculate previous due and total borrow amount
+      final previousDue = getPreviousDueForCustomer(sale.customerName);
+      final totalBorrowAmount = getTotalBorrowAmountForCustomer(sale.customerName, sale.borrowAmount);
+
+      // Add the sale to Firestore
       final docRef = await FirebaseFirestore.instance.collection('sales').add(sale.toMap());
       final newSale = Sale(
         id: docRef.id,
@@ -76,13 +84,22 @@ class SaleProvider with ChangeNotifier {
         paymentHistory: sale.paymentHistory,
       );
 
+      // Add the sale to the local list
       _sales.add(newSale);
 
+      // Update product stock
       for (var soldProduct in sale.soldProducts) {
         final product = productProvider.products.firstWhere((p) => p.id == soldProduct.productId);
         product.stock -= soldProduct.quantity;
         await productProvider.updateProduct(product);
       }
+
+      // Update the customer's borrow amount in Firestore
+      await updateCustomerBorrowAmount(sale.customerName, totalBorrowAmount);
+
+      // Fetch updated sales and customers
+      await fetchSales();
+      await fetchOldestCustomers();
     } catch (e) {
       log('Error adding sale: $e', name: 'addSale');
     } finally {
@@ -91,6 +108,7 @@ class SaleProvider with ChangeNotifier {
     }
   }
 
+  // Update a sale in Firestore
   Future<void> updateSale(Sale sale) async {
     _isLoading = true;
     notifyListeners();
@@ -109,6 +127,7 @@ class SaleProvider with ChangeNotifier {
     }
   }
 
+  // Delete a sale from Firestore
   Future<void> deleteSale(String id) async {
     _isLoading = true;
     notifyListeners();
@@ -124,6 +143,7 @@ class SaleProvider with ChangeNotifier {
     }
   }
 
+  // Stream of sales from Firestore
   Stream<List<Sale>> get salesStream {
     return FirebaseFirestore.instance
         .collection('sales')
@@ -136,6 +156,7 @@ class SaleProvider with ChangeNotifier {
     });
   }
 
+  // Update customer details in Firestore
   Future<void> updateCustomerDetails(Map<String, dynamic> updatedCustomer) async {
     _isLoading = true;
     notifyListeners();
@@ -159,6 +180,7 @@ class SaleProvider with ChangeNotifier {
     }
   }
 
+  // Add a payment record to a sale
   Future<void> addPaymentRecord(String saleId, double amount, DateTime date) async {
     _isLoading = true;
     notifyListeners();
@@ -185,6 +207,7 @@ class SaleProvider with ChangeNotifier {
     }
   }
 
+  // Get aggregated sales by customer name
   Map<String, List<Sale>> getAggregatedSales() {
     final Map<String, List<Sale>> aggregatedSales = {};
 
@@ -199,6 +222,7 @@ class SaleProvider with ChangeNotifier {
     return aggregatedSales;
   }
 
+  // Search customers by name
   List<Sale> searchCustomers(String query) {
     final allCustomers = _sales
         .where((sale) => sale.customerName.toLowerCase().contains(query.toLowerCase()))
@@ -218,9 +242,29 @@ class SaleProvider with ChangeNotifier {
     return uniqueCustomers;
   }
 
-  double getTotalBorrowAmountForCustomer(String customerName) {
+  // Calculate previous due for a customer
+  double getPreviousDueForCustomer(String customerName) {
     return _sales
         .where((sale) => sale.customerName == customerName)
         .fold(0.0, (sum, sale) => sum + sale.borrowAmount);
+  }
+
+  // Calculate total borrow amount for a customer (including the new sale)
+  double getTotalBorrowAmountForCustomer(String customerName, double newBorrowAmount) {
+    final previousDue = getPreviousDueForCustomer(customerName);
+    return previousDue + newBorrowAmount;
+  }
+
+  // Update customer's borrow amount in Firestore
+  Future<void> updateCustomerBorrowAmount(String customerName, double totalBorrowAmount) async {
+    try {
+      // Update the customer's borrow amount in Firestore
+      await FirebaseFirestore.instance
+          .collection('customers') // Assuming you have a 'customers' collection
+          .doc(customerName)
+          .update({'totalBorrowAmount': totalBorrowAmount});
+    } catch (e) {
+      log('Error updating customer borrow amount: $e', name: 'updateCustomerBorrowAmount');
+    }
   }
 }

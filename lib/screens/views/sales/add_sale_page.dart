@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../models/sale_model.dart';
 import '../../../providers/product_provider.dart';
 import '../../../providers/sale_provider.dart';
-import '../../../utils/colors.dart';
-import 'sales_report_page.dart'; // Import the SalesReportPage
+import 'sales_report_page.dart';
 
 class AddSalePage extends StatefulWidget {
   const AddSalePage({super.key});
@@ -37,22 +36,16 @@ class _AddSalePageState extends State<AddSalePage> {
     final productProvider = Provider.of<ProductProvider>(context, listen: false);
     final product = productProvider.products.firstWhere((p) => p.id == productId);
 
-    // Check if the product is out of stock
     if (product.stock == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$productName is out of stock and cannot be sold.'),
-        ),
+        SnackBar(content: Text('$productName is out of stock and cannot be sold.')),
       );
       return;
     }
 
-    // Check if there is enough stock
     if (product.stock < quantity) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Not enough stock for $productName. Only ${product.stock} available.'),
-        ),
+        SnackBar(content: Text('Not enough stock for $productName. Only ${product.stock} available.')),
       );
       return;
     }
@@ -84,7 +77,6 @@ class _AddSalePageState extends State<AddSalePage> {
     final saleProvider = Provider.of<SaleProvider>(context, listen: false);
     final allCustomers = saleProvider.searchCustomers(query);
 
-    // Use a Set to filter out duplicate customer names
     final uniqueCustomerNames = <String>{};
     final uniqueCustomers = <Sale>[];
 
@@ -119,7 +111,6 @@ class _AddSalePageState extends State<AddSalePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
         title: const Text('Add Sale'),
       ),
       body: SingleChildScrollView(
@@ -129,13 +120,11 @@ class _AddSalePageState extends State<AddSalePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Customer search and selection
               TextFormField(
                 controller: _searchController,
                 decoration: InputDecoration(
                   labelText: 'Search Customer',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.search),
                     onPressed: () {
@@ -151,7 +140,7 @@ class _AddSalePageState extends State<AddSalePage> {
               if (_searchResults.isNotEmpty)
                 Column(
                   children: _searchResults.map((customer) {
-                    final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(customer.customerName);
+                    final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(customer.customerName, 0);
                     return ListTile(
                       title: Text(customer.customerName),
                       subtitle: Text('Total Borrow Amount: \৳${totalBorrowAmount.toStringAsFixed(2)}'),
@@ -162,14 +151,11 @@ class _AddSalePageState extends State<AddSalePage> {
                   }).toList(),
                 ),
               const SizedBox(height: 20),
+
+              // Customer details
               TextFormField(
                 controller: _customerNameController,
-                decoration: InputDecoration(
-                  labelText: 'Customer Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
+                decoration: InputDecoration(labelText: 'Customer Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter customer name';
@@ -180,13 +166,7 @@ class _AddSalePageState extends State<AddSalePage> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _customerEmailController,
-                decoration: InputDecoration(
-                  labelText: 'Customer Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(labelText: 'Customer Email'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter customer email';
@@ -197,13 +177,7 @@ class _AddSalePageState extends State<AddSalePage> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _customerPhoneController,
-                decoration: InputDecoration(
-                  labelText: 'Customer Phone',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(labelText: 'Customer Phone'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter customer phone number';
@@ -214,12 +188,7 @@ class _AddSalePageState extends State<AddSalePage> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _customerAddressController,
-                decoration: InputDecoration(
-                  labelText: 'Customer Address',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
+                decoration: InputDecoration(labelText: 'Customer Address'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter customer address';
@@ -228,8 +197,10 @@ class _AddSalePageState extends State<AddSalePage> {
                 },
               ),
               const SizedBox(height: 20),
+
+              // Selected products
               ..._selectedProducts.asMap().entries.map((entry) {
-                final index = entry.key + 1; // Serial number
+                final index = entry.key + 1;
                 final product = entry.value;
                 return ListTile(
                   leading: Text('$index.', style: TextStyle(fontSize: 16)),
@@ -242,11 +213,15 @@ class _AddSalePageState extends State<AddSalePage> {
                 );
               }).toList(),
               const SizedBox(height: 20),
+
+              // Total price
               Text(
                 'Total Price: \৳${_calculateTotalPrice().toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
+
+              // Add product button
               ElevatedButton(
                 onPressed: () {
                   showDialog(
@@ -276,23 +251,13 @@ class _AddSalePageState extends State<AddSalePage> {
                                   buyPrice = productProvider.products.firstWhere((p) => p.id == value).buyPrice;
                                 });
                               },
-                              decoration: InputDecoration(
-                                labelText: 'Product',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
+                              decoration: InputDecoration(labelText: 'Product'),
                               hint: const Text('Select a product'),
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: quantityController,
-                              decoration: InputDecoration(
-                                labelText: 'Quantity',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
+                              decoration: InputDecoration(labelText: 'Quantity'),
                               keyboardType: TextInputType.number,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -307,12 +272,7 @@ class _AddSalePageState extends State<AddSalePage> {
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: sellPriceController,
-                              decoration: InputDecoration(
-                                labelText: 'Sell Price',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
+                              decoration: InputDecoration(labelText: 'Sell Price'),
                               keyboardType: TextInputType.number,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -327,7 +287,7 @@ class _AddSalePageState extends State<AddSalePage> {
                             if (buyPrice != null)
                               Text(
                                 'Buy Price: \৳${buyPrice!.toStringAsFixed(2)}',
-                                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                style: TextStyle(fontSize: 14, color: Colors.grey),
                               ),
                           ],
                         ),
@@ -346,17 +306,13 @@ class _AddSalePageState extends State<AddSalePage> {
                                 final product = productProvider.products.firstWhere((p) => p.id == selectedProductId);
                                 if (product.stock == 0) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('${product.name} is out of stock and cannot be sold.'),
-                                    ),
+                                    SnackBar(content: Text('${product.name} is out of stock and cannot be sold.')),
                                   );
                                   return;
                                 }
                                 if (product.stock < int.parse(quantityController.text)) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Not enough stock for ${product.name}. Only ${product.stock} available.'),
-                                    ),
+                                    SnackBar(content: Text('Not enough stock for ${product.name}. Only ${product.stock} available.')),
                                   );
                                   return;
                                 }
@@ -380,14 +336,11 @@ class _AddSalePageState extends State<AddSalePage> {
                 child: const Text('Add Product'),
               ),
               const SizedBox(height: 20),
+
+              // Pay amount
               TextFormField(
                 controller: _payAmountController,
-                decoration: InputDecoration(
-                  labelText: 'Pay Amount',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
+                decoration: InputDecoration(labelText: 'Pay Amount'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -400,6 +353,8 @@ class _AddSalePageState extends State<AddSalePage> {
                 },
               ),
               const SizedBox(height: 30),
+
+              // Add sale button
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -408,10 +363,12 @@ class _AddSalePageState extends State<AddSalePage> {
                       final payAmount = double.tryParse(_payAmountController.text) ?? 0.0;
                       final borrowAmount = totalPrice - payAmount;
 
-                      // Calculate totalBorrowAmount and previousDue
-                      final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(_customerNameController.text);
-                      final previousDue = totalBorrowAmount - borrowAmount;
+                      // Calculate previous due and total borrow amount
+                      final saleProvider = Provider.of<SaleProvider>(context, listen: false);
+                      final previousDue = saleProvider.getPreviousDueForCustomer(_customerNameController.text);
+                      final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(_customerNameController.text, borrowAmount);
 
+                      // Create the sale object
                       final sale = Sale(
                         id: '', // ID will be generated by Firestore
                         customerId: _selectedCustomer?.customerId ?? 'customerId',
@@ -430,7 +387,7 @@ class _AddSalePageState extends State<AddSalePage> {
                         totalPrice: totalPrice,
                         payAmount: payAmount,
                         borrowAmount: borrowAmount,
-                        saleDate: DateTime.now(), // Use real-time date and time
+                        saleDate: DateTime.now(),
                         paymentHistory: [
                           {
                             'date': DateTime.now().toIso8601String(),
@@ -445,15 +402,16 @@ class _AddSalePageState extends State<AddSalePage> {
                         ],
                       );
 
+                      // Add the sale and update the customer's borrow amount
                       saleProvider.addSale(sale, productProvider).then((_) {
-                        // Navigate to the SalesReportPage after adding the sale
+                        // Navigate to the SalesReportPage with updated values
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => SaleReportPage(
                               sale: sale,
-                              totalBorrowAmount: totalBorrowAmount,
                               previousDue: previousDue,
+                              totalBorrowAmount: totalBorrowAmount,
                             ),
                           ),
                         );
@@ -465,17 +423,7 @@ class _AddSalePageState extends State<AddSalePage> {
                     }
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                child: const Text(
-                  'Add Sale',
-                  style: TextStyle(fontSize: 16, color: AppColors.textOnPrimary),
-                ),
+                child: const Text('Add Sale'),
               ),
             ],
           ),

@@ -14,18 +14,22 @@ import '../../../models/sale_model.dart'; // Adjust the path to your Sale model
 
 class SaleReportPage extends StatelessWidget {
   final Sale sale;
-  final double totalBorrowAmount;
   final double previousDue;
+  final double totalBorrowAmount;
 
   const SaleReportPage({
     Key? key,
     required this.sale,
-    required this.totalBorrowAmount,
     required this.previousDue,
+    required this.totalBorrowAmount,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Debugging: Print values to verify
+    print('Previous Due: $previousDue');
+    print('Total Borrow Amount: $totalBorrowAmount');
+
     // Generate invoice number and date
     final String invoiceNumber = _generateInvoiceNumber();
     final String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
@@ -41,7 +45,7 @@ class SaleReportPage extends StatelessWidget {
           children: [
             _buildCompanyInfo(),
             const SizedBox(height: 20),
-            _buildInvoiceDetails(invoiceNumber, currentDate), // Add invoice details
+            _buildInvoiceDetails(invoiceNumber, currentDate),
             const SizedBox(height: 20),
             _buildCustomerInfo(),
             const SizedBox(height: 20),
@@ -49,7 +53,7 @@ class SaleReportPage extends StatelessWidget {
             const SizedBox(height: 20),
             _buildPaymentInfo(),
             const SizedBox(height: 30),
-            _buildPrintButton(context, invoiceNumber, currentDate), // Pass invoice details
+            _buildPrintButton(context, invoiceNumber, currentDate),
           ],
         ),
       ),
@@ -168,21 +172,128 @@ class SaleReportPage extends StatelessWidget {
                     pw.Text('Customer Address: ${sale.customerAddress ?? 'N/A'}'),
                     pw.SizedBox(height: 20),
 
-                    // Sold Products
+                    // Sold Products Table
                     pw.Text('Sold Products:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-                    ...sale.soldProducts.asMap().entries.map((entry) {
-                      final index = entry.key + 1; // Serial number
-                      final product = entry.value;
-                      return pw.Text('$index. ${product.productName} - Quantity: ${product.quantity}, Price: ${product.sellPrice} Taka');
-                    }).toList(),
+                    pw.Table(
+                      border: pw.TableBorder.all(),
+                      children: [
+                        // Table Header
+                        pw.TableRow(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('SL', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Product Name', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Quantity', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Price', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                        // Table Rows
+                        ...sale.soldProducts.asMap().entries.map((entry) {
+                          final index = entry.key + 1; // Serial number
+                          final product = entry.value;
+                          return pw.TableRow(
+                            children: [
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(8.0),
+                                child: pw.Text('$index'),
+                              ),
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(8.0),
+                                child: pw.Text(product.productName),
+                              ),
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(8.0),
+                                child: pw.Text('${product.quantity}'),
+                              ),
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(8.0),
+                                child: pw.Text('${product.sellPrice} Taka'),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ],
+                    ),
                     pw.SizedBox(height: 20),
 
-                    // Payment Info
-                    pw.Text('Total Price: ${sale.totalPrice} Taka'),
-                    pw.Text('Previous Due: $previousDue Taka', style: pw.TextStyle(fontSize: 16, color: PdfColors.orange)),
-                    pw.Text('Pay Amount: ${sale.payAmount} Taka'),
-                    pw.Text('Borrow Amount: ${sale.borrowAmount} Taka'),
-                    pw.Text('Total Borrow Amount: $totalBorrowAmount Taka', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                    // Payment Info Table
+                    pw.Text('Payment Information:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                    pw.Table(
+                      border: pw.TableBorder.all(),
+                      children: [
+                        pw.TableRow(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Total Price', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('${sale.totalPrice} Taka'),
+                            ),
+                          ],
+                        ),
+                        pw.TableRow(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Previous Due', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('$previousDue Taka', style: pw.TextStyle(color: PdfColors.orange)),
+                            ),
+                          ],
+                        ),
+                        pw.TableRow(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Pay Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('${sale.payAmount} Taka'),
+                            ),
+                          ],
+                        ),
+                        pw.TableRow(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Borrow Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('${sale.borrowAmount} Taka'),
+                            ),
+                          ],
+                        ),
+                        pw.TableRow(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('Total Borrow Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8.0),
+                              child: pw.Text('$totalBorrowAmount Taka', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                     pw.SizedBox(height: 20),
 
                     // QR Code
