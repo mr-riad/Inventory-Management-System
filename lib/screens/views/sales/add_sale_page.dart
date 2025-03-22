@@ -108,6 +108,7 @@ class _AddSalePageState extends State<AddSalePage> {
   Widget build(BuildContext context) {
     final saleProvider = Provider.of<SaleProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -121,103 +122,131 @@ class _AddSalePageState extends State<AddSalePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Customer search and selection
-              TextFormField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  labelText: 'Search Customer',
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () {
-                      _searchCustomers(_searchController.text);
-                    },
+              Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          labelText: 'Search Customer',
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.search),
+                            onPressed: () {
+                              _searchCustomers(_searchController.text);
+                            },
+                          ),
+                        ),
+                        onChanged: (value) {
+                          _searchCustomers(value);
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      if (_searchResults.isNotEmpty)
+                        Column(
+                          children: _searchResults.map((customer) {
+                            final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(customer.customerName, 0);
+                            return ListTile(
+                              title: Text(customer.customerName),
+                              subtitle: Text('Total Borrow Amount: \৳${totalBorrowAmount.toStringAsFixed(2)}'),
+                              onTap: () {
+                                _selectCustomer(customer);
+                              },
+                            );
+                          }).toList(),
+                        ),
+                    ],
                   ),
                 ),
-                onChanged: (value) {
-                  _searchCustomers(value);
-                },
               ),
-              const SizedBox(height: 20),
-              if (_searchResults.isNotEmpty)
-                Column(
-                  children: _searchResults.map((customer) {
-                    final totalBorrowAmount = saleProvider.getTotalBorrowAmountForCustomer(customer.customerName, 0);
-                    return ListTile(
-                      title: Text(customer.customerName),
-                      subtitle: Text('Total Borrow Amount: \৳${totalBorrowAmount.toStringAsFixed(2)}'),
-                      onTap: () {
-                        _selectCustomer(customer);
-                      },
-                    );
-                  }).toList(),
-                ),
               const SizedBox(height: 20),
 
               // Customer details
-              TextFormField(
-                controller: _customerNameController,
-                decoration: InputDecoration(labelText: 'Customer Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter customer name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _customerEmailController,
-                decoration: InputDecoration(labelText: 'Customer Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter customer email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _customerPhoneController,
-                decoration: InputDecoration(labelText: 'Customer Phone'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter customer phone number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _customerAddressController,
-                decoration: InputDecoration(labelText: 'Customer Address'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter customer address';
-                  }
-                  return null;
-                },
+              Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _customerNameController,
+                        decoration: InputDecoration(labelText: 'Customer Name'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter customer name';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _customerEmailController,
+                        decoration: InputDecoration(labelText: 'Customer Email'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter customer email';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _customerPhoneController,
+                        decoration: InputDecoration(labelText: 'Customer Phone'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter customer phone number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _customerAddressController,
+                        decoration: InputDecoration(labelText: 'Customer Address'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter customer address';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
 
               // Selected products
-              ..._selectedProducts.asMap().entries.map((entry) {
-                final index = entry.key + 1;
-                final product = entry.value;
-                return ListTile(
-                  leading: Text('$index.', style: TextStyle(fontSize: 16)),
-                  title: Text(product['productName']),
-                  subtitle: Text('Quantity: ${product['quantity']}, Price: \৳${product['sellPrice']}'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _removeProduct(entry.key),
+              Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      ..._selectedProducts.asMap().entries.map((entry) {
+                        final index = entry.key + 1;
+                        final product = entry.value;
+                        return ListTile(
+                          leading: Text('$index.', style: TextStyle(fontSize: 16)),
+                          title: Text(product['productName']),
+                          subtitle: Text('Quantity: ${product['quantity']}, Price: \৳${product['sellPrice']}'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => _removeProduct(entry.key),
+                          ),
+                        );
+                      }).toList(),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Total Price: \৳${_calculateTotalPrice().toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                );
-              }).toList(),
-              const SizedBox(height: 20),
-
-              // Total price
-              Text(
-                'Total Price: \৳${_calculateTotalPrice().toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -338,19 +367,25 @@ class _AddSalePageState extends State<AddSalePage> {
               const SizedBox(height: 20),
 
               // Pay amount
-              TextFormField(
-                controller: _payAmountController,
-                decoration: InputDecoration(labelText: 'Pay Amount'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a pay amount';
-                  }
-                  if (double.tryParse(value) == null || double.parse(value) < 0) {
-                    return 'Please enter a valid pay amount';
-                  }
-                  return null;
-                },
+              Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextFormField(
+                    controller: _payAmountController,
+                    decoration: InputDecoration(labelText: 'Pay Amount'),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a pay amount';
+                      }
+                      if (double.tryParse(value) == null || double.parse(value) < 0) {
+                        return 'Please enter a valid pay amount';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
               ),
               const SizedBox(height: 30),
 

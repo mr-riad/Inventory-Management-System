@@ -19,6 +19,7 @@ class _EditSalePageState extends State<EditSalePage> {
   late TextEditingController _customerNameController;
   late TextEditingController _customerEmailController;
   late TextEditingController _customerPhoneController;
+  late TextEditingController _customerAddressController;
   late TextEditingController _payAmountController;
 
   List<SoldProduct> _soldProducts = [];
@@ -29,6 +30,7 @@ class _EditSalePageState extends State<EditSalePage> {
     _customerNameController = TextEditingController(text: widget.sale.customerName);
     _customerEmailController = TextEditingController(text: widget.sale.customerEmail);
     _customerPhoneController = TextEditingController(text: widget.sale.customerPhone);
+    _customerAddressController = TextEditingController(text: widget.sale.customerAddress);
     _payAmountController = TextEditingController(text: widget.sale.payAmount.toString());
     _soldProducts = List.from(widget.sale.soldProducts);
   }
@@ -59,6 +61,7 @@ class _EditSalePageState extends State<EditSalePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Customer Name (Read-only)
                   TextFormField(
                     controller: _customerNameController,
                     decoration: InputDecoration(
@@ -68,14 +71,10 @@ class _EditSalePageState extends State<EditSalePage> {
                       ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter customer name';
-                      }
-                      return null;
-                    },
+                    readOnly: true, // Make the field read-only
                   ),
                   const SizedBox(height: 20),
+                  // Customer Email
                   TextFormField(
                     controller: _customerEmailController,
                     decoration: InputDecoration(
@@ -94,6 +93,7 @@ class _EditSalePageState extends State<EditSalePage> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  // Customer Phone
                   TextFormField(
                     controller: _customerPhoneController,
                     decoration: InputDecoration(
@@ -112,6 +112,25 @@ class _EditSalePageState extends State<EditSalePage> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  // Customer Address
+                  TextFormField(
+                    controller: _customerAddressController,
+                    decoration: InputDecoration(
+                      labelText: 'Customer Address',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter customer address';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  // Pay Amount
                   TextFormField(
                     controller: _payAmountController,
                     decoration: InputDecoration(
@@ -133,10 +152,12 @@ class _EditSalePageState extends State<EditSalePage> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  // Sold Products List
                   ..._soldProducts.map((soldProduct) {
                     return _buildSoldProductItem(soldProduct, productProvider);
                   }).toList(),
                   const SizedBox(height: 30),
+                  // Update Sale Button
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
@@ -151,7 +172,7 @@ class _EditSalePageState extends State<EditSalePage> {
                             customerName: _customerNameController.text,
                             customerEmail: _customerEmailController.text,
                             customerPhone: _customerPhoneController.text,
-                            customerAddress: widget.sale.customerAddress,
+                            customerAddress: _customerAddressController.text,
                             soldProducts: _soldProducts,
                             totalPrice: totalPrice,
                             payAmount: payAmount,
@@ -206,95 +227,9 @@ class _EditSalePageState extends State<EditSalePage> {
             Text('Quantity: ${soldProduct.quantity}'),
             Text('Sell Price: \$${soldProduct.sellPrice.toStringAsFixed(2)}'),
             Text('Total: \$${(soldProduct.quantity * soldProduct.sellPrice).toStringAsFixed(2)}'),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    _editSoldProduct(soldProduct);
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    setState(() {
-                      _soldProducts.remove(soldProduct);
-                    });
-                  },
-                ),
-              ],
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  void _editSoldProduct(SoldProduct soldProduct) {
-    final quantityController = TextEditingController(text: soldProduct.quantity.toString());
-    final sellPriceController = TextEditingController(text: soldProduct.sellPrice.toString());
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Sold Product'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: quantityController,
-                decoration: const InputDecoration(labelText: 'Quantity'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a quantity';
-                  }
-                  if (int.tryParse(value) == null || int.parse(value) <= 0) {
-                    return 'Please enter a valid quantity';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: sellPriceController,
-                decoration: const InputDecoration(labelText: 'Sell Price'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a sell price';
-                  }
-                  if (double.tryParse(value) == null || double.parse(value) <= 0) {
-                    return 'Please enter a valid sell price';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (quantityController.text.isNotEmpty && sellPriceController.text.isNotEmpty) {
-                  setState(() {
-                    soldProduct.quantity = int.parse(quantityController.text);
-                    soldProduct.sellPrice = double.parse(sellPriceController.text);
-                  });
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

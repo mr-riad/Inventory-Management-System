@@ -118,7 +118,7 @@ class SaleReportPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Total Price: \৳${sale.totalPrice}', style: TextStyle(fontSize: 16)),
-        Text('Previous Due: \৳$previousDue', style: TextStyle(fontSize: 16, color: Colors.orange)),
+        Text('Previous Due: \৳$previousDue', style: TextStyle(fontSize: 16, color: Colors.black)),
         Text('Pay Amount: \৳${sale.payAmount}', style: TextStyle(fontSize: 16)),
         Text('Borrow Amount: \৳${sale.borrowAmount}', style: TextStyle(fontSize: 16)),
         Text('Total Borrow Amount: \৳$totalBorrowAmount', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -160,16 +160,36 @@ class SaleReportPage extends StatelessWidget {
                       ),
                     ),
 
-                    // Invoice Details
-                    pw.Text('Invoice Number: $invoiceNumber'),
-                    pw.Text('Date: $currentDate'),
-                    pw.SizedBox(height: 20),
+                    // Invoice Details and QR Code
+                    pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        // Invoice Details
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text('Invoice Number: $invoiceNumber'),
+                              pw.Text('Date: $currentDate'),
+                              pw.SizedBox(height: 10),
+                              pw.Text('Customer Name: ${sale.customerName}'),
+                              pw.Text('Customer Email: ${sale.customerEmail}'),
+                              pw.Text('Customer Phone: ${sale.customerPhone}'),
+                              pw.Text('Customer Address: ${sale.customerAddress ?? 'N/A'}'),
+                            ],
+                          ),
+                        ),
 
-                    // Customer Info
-                    pw.Text('Customer Name: ${sale.customerName}'),
-                    pw.Text('Customer Email: ${sale.customerEmail}'),
-                    pw.Text('Customer Phone: ${sale.customerPhone}'),
-                    pw.Text('Customer Address: ${sale.customerAddress ?? 'N/A'}'),
+                        // QR Code
+                        pw.Container(
+                          width: 100, // Adjust the width of the QR code
+                          height: 100, // Adjust the height of the QR code
+                          child: pw.Image(
+                            pw.MemoryImage(qrImage),
+                          ),
+                        ),
+                      ],
+                    ),
                     pw.SizedBox(height: 20),
 
                     // Sold Products Table
@@ -252,7 +272,7 @@ class SaleReportPage extends StatelessWidget {
                             ),
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text('$previousDue Taka', style: pw.TextStyle(color: PdfColors.orange)),
+                              child: pw.Text('$previousDue Taka', style: pw.TextStyle(color: PdfColors.black)),
                             ),
                           ],
                         ),
@@ -272,7 +292,7 @@ class SaleReportPage extends StatelessWidget {
                           children: [
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text('Borrow Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                              child: pw.Text('Due Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                             ),
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(8.0),
@@ -284,7 +304,7 @@ class SaleReportPage extends StatelessWidget {
                           children: [
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text('Total Borrow Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                              child: pw.Text('Total Due Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                             ),
                             pw.Padding(
                               padding: const pw.EdgeInsets.all(8.0),
@@ -293,16 +313,6 @@ class SaleReportPage extends StatelessWidget {
                           ],
                         ),
                       ],
-                    ),
-                    pw.SizedBox(height: 20),
-
-                    // QR Code
-                    pw.Center(
-                      child: pw.Image(
-                        pw.MemoryImage(qrImage),
-                        width: 150,
-                        height: 150,
-                      ),
                     ),
                   ],
                 );

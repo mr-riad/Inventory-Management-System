@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:invetory_management1/providers/product_provider.dart';
 import 'package:invetory_management1/providers/sale_provider.dart';
+import 'package:invetory_management1/sales_count/total_sell_page.dart';
 import 'package:invetory_management1/screens/views/home/bottom_page/total%20borrow/total_borrow_page.dart';
 import 'package:invetory_management1/screens/views/home/bottom_page/total%20profit/profit_home_page.dart';
 import 'package:invetory_management1/utils/colors.dart';
 import 'package:provider/provider.dart';
 import '../../auth/login_screen.dart';
 import '../borrow/borrow_page.dart';
+import '../borrow/total_due_page.dart';
 import '../customers/customers_page.dart';
 import '../product/product_pge.dart';
 import '../profit/profit_page.dart';
@@ -23,8 +25,8 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     DashboardScreen(), // The main content of the home page
-    TotalBorrowPage(), // Total Payable Amount page
-   // ProfitHomePage(), // Total Sell page
+    TotalDuePage(), // Total Payable Amount page
+    TotalProfitPage(), // Total Sell page
   ];
 
   // Data load function
@@ -104,8 +106,8 @@ class DashboardScreen extends StatelessWidget {
     },
     {
       'image': 'images/profit.png',
-      'name': 'Profit',
-      // 'page': ProfitPage(),
+      'name': 'Total Product Sell',
+      'page': TotalSellPage(),
     },
   ];
 

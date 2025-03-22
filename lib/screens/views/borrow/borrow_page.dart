@@ -169,6 +169,8 @@ class _BorrowPageState extends State<BorrowPage> {
   Future<void> _printTotalPaymentBill(String customerName, double totalDueAmount, double paymentAmount) async {
     final pdf = pw.Document();
 
+    final remainingBalance = totalDueAmount - paymentAmount;
+
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
@@ -181,6 +183,7 @@ class _BorrowPageState extends State<BorrowPage> {
               pw.SizedBox(height: 20),
               pw.Text('Total Due Amount: ${totalDueAmount.toStringAsFixed(2)}'),
               pw.Text('Payment Amount: ${paymentAmount.toStringAsFixed(2)}'),
+              pw.Text('Remaining Balance: ${remainingBalance.toStringAsFixed(2)}'),
               pw.SizedBox(height: 20),
               pw.Text('Payment Date: ${DateTime.now().toString()}'),
             ],

@@ -1,3 +1,5 @@
+import 'package:invetory_management1/models/product_model.dart';
+
 class SoldProduct {
   final String productId;
   final String productName;
@@ -102,5 +104,14 @@ class Sale {
     paymentHistory.add({'amount': amount, 'date': date.toIso8601String()});
     payAmount = amount;
     borrowAmount -= amount;
+  }
+  double calculateProfit(List<Product> products) {
+    double totalProfit = 0.0;
+    for (var soldProduct in soldProducts) {
+      final product = products.firstWhere((p) => p.id == soldProduct.productId);
+      final profit = (soldProduct.sellPrice - product.buyPrice) * soldProduct.quantity;
+      totalProfit += profit;
+    }
+    return totalProfit;
   }
 }

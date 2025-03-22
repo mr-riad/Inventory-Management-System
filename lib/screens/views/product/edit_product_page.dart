@@ -11,6 +11,7 @@ class EditProductPage extends StatelessWidget {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _stockController = TextEditingController();
+  final _newStockController = TextEditingController();
 
   EditProductPage({required this.product}) {
     _nameController.text = product.name;
@@ -94,7 +95,7 @@ class EditProductPage extends StatelessWidget {
               TextFormField(
                 controller: _stockController,
                 decoration: InputDecoration(
-                  labelText: 'Stock',
+                  labelText: 'Current Stock',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
@@ -109,6 +110,25 @@ class EditProductPage extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 20),
+              TextFormField(
+                controller: _newStockController,
+                decoration: InputDecoration(
+                  labelText: 'Add New Stock',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter new stock quantity';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
@@ -118,7 +138,7 @@ class EditProductPage extends StatelessWidget {
                       name: _nameController.text,
                       description: _descriptionController.text,
                       buyPrice: double.parse(_priceController.text),
-                      stock: int.parse(_stockController.text),
+                      stock: int.parse(_stockController.text) + int.parse(_newStockController.text),
                       createdAt: product.createdAt,
                     );
                     productProvider.updateProduct(updatedProduct);

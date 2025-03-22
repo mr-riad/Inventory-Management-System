@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:invetory_management1/providers/product_provider.dart';
+import 'package:provider/provider.dart';
 import '../models/sale_model.dart';
 
 class SaleProvider with ChangeNotifier {
@@ -266,5 +267,50 @@ class SaleProvider with ChangeNotifier {
     } catch (e) {
       log('Error updating customer borrow amount: $e', name: 'updateCustomerBorrowAmount');
     }
+  }
+
+  // Calculate total profit based on filter
+  double calculateTotalProfit(BuildContext context, {DateTime? startDate, DateTime? endDate}) {
+    double totalProfit = 0.0;
+    final products = Provider.of<ProductProvider>(context, listen: false).products;
+
+    for (var sale in _sales) {
+      if (startDate != null && endDate != null) {
+        // Check if the sale date is within the range (inclusive of startDate and exclusive of endDate)
+        if (sale.saleDate.isAfter(startDate.subtract(Duration(days: 1))) && sale.saleDate.isBefore(endDate)) {
+          totalProfit += sale.calculateProfit(products);
+        }
+      } else {
+        // If no date range is provided, include all sales
+        totalProfit += sale.calculateProfit(products);
+      }
+    }
+    return totalProfit;
+  }
+
+  // Filter sales by day
+  double calculateDailyProfit(BuildContext context, DateTime date) {
+    final startDate = DateTime(date.year, date.month, date.day);
+    final endDate = startDate.add(Duration(days: 1));
+    return calculateTotalProfit(context, startDate: startDate, endDate: endDate);
+  }
+
+  // Filter sales by month
+  double calculateMonthlyProfit(BuildContext context, DateTime date) {
+    final startDate = DateTime(date.year, date.month, 1);
+    final endDate = DateTime(date.year, date.month + 1, 1);
+    return calculateTotalProfit(context, startDate: startDate, endDate: endDate);
+  }
+
+  // Filter sales by year
+  double calculateYearlyProfit(BuildContext context, DateTime date) {
+    final startDate = DateTime(date.year, 1, 1);
+    final endDate = DateTime(date.year + 1, 1, 1);
+    return calculateTotalProfit(context, startDate: startDate, endDate: endDate);
+  }
+
+  // Lifetime profit
+  double calculateLifetimeProfit(BuildContext context) {
+    return calculateTotalProfit(context);
   }
 }
