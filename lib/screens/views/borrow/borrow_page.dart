@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart'; // Add this import
+import 'dart:io';
 import '../../../models/sale_model.dart';
 import '../../../providers/sale_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -21,6 +24,7 @@ class _BorrowPageState extends State<BorrowPage> {
   void initState() {
     super.initState();
     Provider.of<SaleProvider>(context, listen: false).fetchSales();
+    FlutterDownloader.initialize(debug: true); // Initialize flutter_downloader
   }
 
   @override
@@ -192,6 +196,21 @@ class _BorrowPageState extends State<BorrowPage> {
       ),
     );
 
+    // Get the temporary directory using path_provider
+    final output = await getTemporaryDirectory();
+    final file = File("${output.path}/$customerName.pdf");
+    await file.writeAsBytes(await pdf.save());
+
+    // Download the PDF using flutter_downloader
+    final taskId = await FlutterDownloader.enqueue(
+      url: file.path,
+      savedDir: output.path,
+      fileName: "$customerName.pdf",
+      showNotification: true,
+      openFileFromNotification: true,
+    );
+
+    // Print the PDF (optional)
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );

@@ -1,0 +1,2 @@
+C:/Users/Riad/StudioProjects/invetory_management1/android/app/.cxx/Debug/m6c2pm2g/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Riad/StudioProjects/invetory_management1/android/app/.cxx/Debug/m6c2pm2g/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -51,6 +51,9 @@ dependencies:
   go_router:
   js:
   html:
+  universal_html:
+  flutter_downloader:
+  path_provider:
 
 dev_dependencies:
   flutter_test:

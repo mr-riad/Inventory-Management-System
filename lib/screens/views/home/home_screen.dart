@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invetory_management1/providers/product_provider.dart';
 import 'package:invetory_management1/providers/sale_provider.dart';
-import 'package:invetory_management1/sales_count/total_sell_page.dart';
 import 'package:invetory_management1/screens/views/home/bottom_page/total%20borrow/total_borrow_page.dart';
 import 'package:invetory_management1/screens/views/home/bottom_page/total%20profit/profit_home_page.dart';
 import 'package:invetory_management1/utils/colors.dart';
@@ -13,6 +12,7 @@ import '../customers/customers_page.dart';
 import '../product/product_pge.dart';
 import '../profit/profit_page.dart';
 import '../sales/sale_page.dart';
+import '../sales_count/total_sell_page.dart';
 import '../stcok/stock_page.dart';
 
 class HomePage extends StatefulWidget {

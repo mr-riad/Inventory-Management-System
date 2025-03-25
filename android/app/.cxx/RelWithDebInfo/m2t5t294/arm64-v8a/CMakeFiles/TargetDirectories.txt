@@ -1,0 +1,2 @@
+C:/Users/Riad/StudioProjects/invetory_management1/android/app/.cxx/RelWithDebInfo/m2t5t294/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/Riad/StudioProjects/invetory_management1/android/app/.cxx/RelWithDebInfo/m2t5t294/arm64-v8a/CMakeFiles/rebuild_cache.dir

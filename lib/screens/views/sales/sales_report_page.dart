@@ -7,7 +7,7 @@ import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:html' as html; // For web platform only
+import 'package:universal_html/html.dart' as html; // Use universal_html for web platform
 import 'package:intl/intl.dart'; // For date formatting
 
 import '../../../models/sale_model.dart'; // Adjust the path to your Sale model
@@ -388,7 +388,7 @@ class SaleReportPage extends StatelessWidget {
   void _printPdf(Uint8List pdfData) {
     final blob = html.Blob([pdfData], 'application/pdf');
     final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.document.createElement('a') as html.AnchorElement
+    final anchor = html.AnchorElement()
       ..href = url
       ..style.display = 'none'
       ..download = 'sale_report.pdf';
